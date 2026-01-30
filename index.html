@@ -5,55 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva tu Turno</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Estilos específicos para lograr la estética de las imágenes */
-        .container-admin {
-            max-width: 600px;
-            margin: auto;
-            padding: 40px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #202124;
-        }
-        input, select {
-            padding: 12px;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            font-size: 16px;
-            width: 100%;
-        }
-        .grid-horarios {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        /* El botón azul "Inmenso" */
-        .btn-confirmar {
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: 500;
-            width: 100%;
-            margin-top: 30px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-confirmar:hover {
-            background-color: #1557b0;
-        }
-    </style>
 </head>
 <body>
     <div class="container-admin">
@@ -65,14 +16,13 @@
         </div>
         
         <div class="form-group">
-            <label>DNI:</label>
+            <label>DNI (solo números, 7 u 8 cifras):</label>
             <input type="text" id="dni" placeholder="Ej: 12345678">
         </div>
         
         <div class="form-group">
             <label>Tipo de Turno:</label>
             <select id="tipo" onchange="cargarHorarios()">
-                <option value="" disabled selected>Seleccione...</option>
                 <option value="Control">Control (20 min)</option>
                 <option value="Primera vez">Primera vez (40 min)</option>
             </select>
@@ -83,43 +33,56 @@
             <input type="date" id="fecha" onchange="cargarHorarios()">
         </div>
 
-        <label>Selecciona un Horario:</label>
-        <div id="gridHorarios" class="grid-horarios">
+        <p style="margin-top: 20px; font-weight: 500;">Selecciona un Horario:</p>
+        <div id="gridHorarios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; margin-top: 15px;">
             </div>
         
         <input type="hidden" id="horaSeleccionada">
 
-        <button onclick="reservar()" class="btn-confirmar">
+        <button onclick="reservar()" class="btn-buscar" style="width: 100%; margin-top: 40px; height: 50px; background-color: #1a73e8; color: white; border: none; border-radius: 25px; font-size: 16px; cursor: pointer;">
             Confirmar Reserva
         </button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // AQUÍ VA TU LÓGICA ORIGINAL QUE YA FUNCIONA
         const _supabase = supabase.createClient('https://uekuyjoakqnhjltqrrpj.supabase.co', 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj');
 
         async function cargarHorarios() {
             const fecha = document.getElementById('fecha').value;
             const grid = document.getElementById('gridHorarios');
             if (!fecha) return;
-            grid.innerHTML = 'Buscando...';
+
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Cargando horarios libres...</p>';
             
-            const { data: ocupados } = await _supabase.from('turnos').select('hora_inicio, hora_fin').eq('fecha', fecha);
+            // Mejora: Consultar turnos ya reservados para ocultarlos
+            const { data: ocupados } = await _supabase
+                .from('turnos')
+                .select('hora_inicio, hora_fin')
+                .eq('fecha', fecha);
+            
             grid.innerHTML = '';
             
+            // Generamos slots de 15:00 a 20:00 cada 20 minutos
             for (let h = 15; h < 20; h++) {
                 for (let m = 0; m < 60; m += 20) {
-                    const hora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-                    const estaOcupado = ocupados?.some(t => hora >= t.hora_inicio && hora < t.hora_fin);
+                    const horaActual = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                    
+                    // Lógica de ocultación: No mostrar si la hora cae dentro de un rango ocupado
+                    const estaOcupado = ocupados?.some(t => {
+                        const inicio = t.hora_inicio.substring(0, 5);
+                        const fin = t.hora_fin.substring(0, 5);
+                        return (horaActual >= inicio && horaActual < fin);
+                    });
+
                     if (!estaOcupado) {
                         const div = document.createElement('div');
-                        div.className = 'slot-hora'; // Asegúrate que esta clase esté en tu style.css
-                        div.innerText = hora;
+                        div.className = 'slot-hora'; // Usa tu estilo de botones redondeados pequeños
+                        div.innerText = horaActual;
                         div.onclick = () => {
                             document.querySelectorAll('.slot-hora').forEach(s => s.classList.remove('active'));
                             div.classList.add('active');
-                            document.getElementById('horaSeleccionada').value = hora;
+                            document.getElementById('horaSeleccionada').value = horaActual;
                         };
                         grid.appendChild(div);
                     }
@@ -134,15 +97,38 @@
             const hIni = document.getElementById('horaSeleccionada').value;
             const tipo = document.getElementById('tipo').value;
 
-            if (!nombre || !dni || !fecha || !hIni) return alert("Completa los campos");
+            if (!nombre || !dni || !fecha || !hIni) return alert("Por favor, completa todos los datos.");
 
-            // Tu lógica de inserción tal cual la tienes
+            // Mejora 2: Cálculo correcto de hora_fin según tipo de turno
+            const [h, m] = hIni.split(':').map(Number);
+            const duracion = (tipo === 'Primera vez') ? 40 : 20;
+            const dFin = new Date(0, 0, 0, h, m + duracion);
+            const hFin = `${dFin.getHours().toString().padStart(2, '0')}:${dFin.getMinutes().toString().padStart(2, '0')}`;
+
+            // Mejora 1: Bloqueo de duplicados (Doble verificación)
+            const { data: duplicado } = await _supabase
+                .from('turnos')
+                .select('id')
+                .eq('fecha', fecha)
+                .eq('hora_inicio', hIni);
+
+            if (duplicado && duplicado.length > 0) {
+                alert("Este horario se acaba de ocupar. Por favor, elige otro.");
+                return cargarHorarios();
+            }
+
             const { error } = await _supabase.from('turnos').insert([{
-                nombre, dni, fecha, hora_inicio: hIni, hora_fin: hIni, tipo_turno: tipo
+                nombre, dni, fecha, hora_inicio: hIni, hora_fin: hFin, tipo_turno: tipo
             }]);
 
-            if (error) alert("Error: " + error.message);
-            else { alert("✅ Reservado"); location.reload(); }
+            if (error) {
+                // Validación de DNI de 7 u 8 dígitos
+                if (error.message.includes('turnos_dni_check')) alert("DNI inválido.");
+                else alert("Error: " + error.message);
+            } else {
+                alert("✅ Turno reservado correctamente.");
+                location.reload();
+            }
         }
     </script>
 </body>
