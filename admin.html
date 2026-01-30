@@ -10,6 +10,7 @@
 <body>
     <div class="container-admin">
         <h1>Gestión de Turnos</h1>
+        
         <div class="filtros">
             <input type="date" id="filtroFecha" onchange="obtenerTurnos()">
             <input type="text" id="filtroDni" placeholder="Buscar DNI..." oninput="obtenerTurnos()">
@@ -17,21 +18,21 @@
                 <i class="fas fa-search"></i> Buscar / Refrescar
             </button>
         </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Paciente</th>
-                        <th>DNI</th>
-                        <th>Tipo</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaTurnos"></tbody>
-            </table>
-        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Paciente</th>
+                    <th>DNI</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaTurnos">
+                </tbody>
+        </table>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="admin.js"></script>
