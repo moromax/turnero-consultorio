@@ -1,7 +1,7 @@
 // Configuración de Supabase
 // Reemplaza con tus datos que están en Project Settings -> API
-const SUPABASE_URL = 'TU_URL_DE_SUPABASE';
-const SUPABASE_KEY = 'TU_ANON_KEY_DE_SUPABASE';
+const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
