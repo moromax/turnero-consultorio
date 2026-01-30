@@ -1,4 +1,4 @@
-/* IMPORTACIÓN DE LEXEND - LA MÁS PARECIDA A GOOGLE SANS */
+/* PUNTO DE RECUPERACIÓN V1 - ESTILO GOOGLE SANS (LEXEND) */
 @import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap');
 
 * { 
@@ -17,7 +17,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* TARJETA BLANCA PRINCIPAL */
+/* TARJETA PRINCIPAL */
 .container-admin, .card {
     background: white;
     padding: 40px;
@@ -27,41 +27,17 @@ body {
     max-width: 1100px;
 }
 
-/* TÍTULOS CON TOQUE GOOGLE */
+/* TÍTULOS ESTILO GOOGLE */
 h1 { 
     text-align: left; 
     margin-bottom: 30px; 
     font-weight: 700; 
     color: #202124; 
     font-size: 28px; 
-    letter-spacing: -0.03em; /* Ajuste para que parezca Google Sans */
+    letter-spacing: -0.04em; /* Simula la condensación de Google Sans */
 }
 
-/* SECCIÓN DE FILTROS EN GESTIÓN */
-.header-actions, .filtros {
-    display: flex; 
-    gap: 15px; 
-    margin-bottom: 35px;
-    background: #f8f9fa; 
-    padding: 20px; 
-    border-radius: 20px;
-    align-items: center;
-}
-
-/* INPUTS REDONDEADOS */
-input[type="date"], 
-input[type="text"], 
-select {
-    padding: 10px 18px; 
-    border: 1px solid #dadce0; 
-    border-radius: 12px;
-    height: 48px; 
-    font-family: inherit; 
-    font-size: 15px;
-    background: white;
-}
-
-/* BOTONES PÍLDORA (100px border-radius) */
+/* BOTONES PÍLDORA */
 button {
     cursor: pointer; 
     border: none !important; 
@@ -72,57 +48,34 @@ button {
     align-items: center; 
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 12px 30px;
+    font-size: 15px;
 }
 
-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(26, 115, 232, 0.2);
-}
-
-/* COLORES SOLICITADOS */
+/* COLORES DE ACCIÓN */
 .btn-buscar, .btn-confirmar, .btn-edit { 
-    background-color: #1a73e8 !important; /* Azul Google */
+    background-color: #1a73e8 !important; 
     color: white !important;
-    height: 48px; 
-    padding: 0 30px !important; 
 }
 
 .btn-nuevo, .btn-agenda { 
-    background-color: #34a853 !important; /* Verde Google */
+    background-color: #34a853 !important; 
     color: white !important;
-    height: 48px; 
-    padding: 0 30px !important; 
 }
 
 .btn-delete { 
     background-color: #d93025 !important; 
     color: white !important;
-    padding: 8px 22px !important; 
 }
 
-/* TABLA DE TURNOS */
-table { width: 100%; border-collapse: collapse; }
-th { 
-    text-align: left; 
-    padding: 18px 15px; 
-    color: #5f6368; 
-    font-size: 12px; 
-    text-transform: uppercase; 
-    font-weight: 700;
-    border-bottom: 2px solid #f1f3f4;
+/* TABLA Y FORMULARIOS */
+input, select {
+    padding: 12px 18px; 
+    border: 1px solid #dadce0; 
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
 }
-td { padding: 18px 15px; border-bottom: 1px solid #f1f3f4; font-size: 14px; color: #3c4043; }
 
-/* GRID HORARIOS */
-.slot-hora {
-    padding: 12px;
-    background: white;
-    border: 1px solid #dadce0;
-    border-radius: 14px;
-    text-align: center;
-    cursor: pointer;
-}
-.slot-hora.disponible { background-color: #e6f4ea; color: #1e8e3e; }
-.slot-hora.ocupado { background-color: #fce8e6; color: #d93025; cursor: not-allowed; }
+.slot-hora.disponible { background-color: #e6f4ea; color: #1e8e3e; border: 1px solid #ceead6; }
 .slot-hora.seleccionado { background-color: #1a73e8 !important; color: white !important; }
