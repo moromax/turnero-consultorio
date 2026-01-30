@@ -16,33 +16,23 @@ body {
     border-radius: 28px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
 }
 
-/* Estilo para los slots de hora */
+/* Selector de Horarios Moderno */
 .slot-hora {
-    padding: 12px;
-    background: #ffffff;
+    padding: 10px;
+    background: white;
     border: 1px solid #dadce0;
-    border-radius: 12px;
+    border-radius: 10px;
     text-align: center;
     cursor: pointer;
-    font-size: 14px;
     transition: 0.2s;
 }
+.slot-hora:hover { border-color: #1a73e8; background: #f8f9fa; }
+.slot-hora.active { background: #1a73e8 !important; color: white !important; }
 
-.slot-hora:hover {
-    background: #f8f9fa;
-    border-color: #1a73e8;
-}
-
-.slot-hora.active {
-    background: #1a73e8 !important;
-    color: white !important;
-    border-color: #1a73e8;
-}
-
-/* Botones generales */
+/* Botones sin bordes negros */
 button {
     cursor: pointer;
     border: none !important;
@@ -50,11 +40,12 @@ button {
     color: white;
     font-weight: 500;
     font-family: inherit;
+    transition: 0.3s;
 }
 
-.btn-buscar { background-color: #1a73e8 !important; padding: 12px 25px; }
-.btn-delete { background-color: #d93025 !important; padding: 8px 15px; }
+.btn-buscar { background: #1a73e8 !important; padding: 10px 25px; }
+.btn-edit { background: #1a73e8 !important; padding: 8px 18px; margin-right: 5px; }
+.btn-delete { background: #d93025 !important; padding: 8px 18px; }
 
 table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th { text-align: left; padding: 12px; color: #70757a; font-size: 12px; border-bottom: 2px solid #f1f3f4; }
-td { padding: 15px 12px; border-bottom: 1px solid #f1f3f4; font-size: 14px; }
+td { padding: 15px 12px; border-bottom: 1px solid #eee; font-size: 14px; }
