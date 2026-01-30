@@ -10,18 +10,11 @@ async function obtenerTurnos() {
 
     let query = _supabase.from('turnos').select('*').order('fecha', { ascending: true }).order('hora_inicio', { ascending: true });
 
-    // Aplicar filtros si existen
     if (fecha) query = query.eq('fecha', fecha);
     if (dni) query = query.ilike('dni', `%${dni}%`);
 
     const { data, error } = await query;
-
-    if (error) {
-        console.error(error);
-        return;
-    }
-
-    renderizarTabla(data);
+    if (!error) renderizarTabla(data);
 }
 
 function renderizarTabla(turnos) {
@@ -30,11 +23,12 @@ function renderizarTabla(turnos) {
         const fila = document.createElement('tr');
         fila.innerHTML = `
             <td>${turno.fecha}</td>
-            <td>${turno.hora_inicio} - ${turno.hora_fin}</td>
+            <td>${turno.hora_inicio.substring(0,5)} - ${turno.hora_fin.substring(0,5)}</td>
             <td>${turno.nombre}</td>
             <td>${turno.dni}</td>
             <td>${turno.tipo_turno}</td>
             <td>
+                <button onclick="editarTurno('${turno.id}', '${turno.nombre}', '${turno.dni}')" style="background:#3498db; margin-right:5px;">Editar</button>
                 <button onclick="eliminarTurno('${turno.id}')" class="btn-delete">Eliminar</button>
             </td>
         `;
@@ -42,13 +36,28 @@ function renderizarTabla(turnos) {
     });
 }
 
-async function eliminarTurno(id) {
-    if (confirm('¿Estás seguro de que deseas eliminar este turno?')) {
-        const { error } = await _supabase.from('turnos').delete().eq('id', id);
-        if (error) alert("Error al eliminar");
-        else obtenerTurnos(); // Refrescar tabla
+async function editarTurno(id, nombreActual, dniActual) {
+    const nuevoNombre = prompt("Nuevo nombre del paciente:", nombreActual);
+    const nuevoDni = prompt("Nuevo DNI:", dniActual);
+
+    if (nuevoNombre && nuevoDni) {
+        if (!/^[0-9]{7,8}$/.test(nuevoDni)) return alert("DNI inválido.");
+
+        const { error } = await _supabase
+            .from('turnos')
+            .update({ nombre: nuevoNombre, dni: nuevoDni })
+            .eq('id', id);
+
+        if (error) alert("Error al actualizar");
+        else obtenerTurnos();
     }
 }
 
-// Cargar todos los turnos al iniciar
+async function eliminarTurno(id) {
+    if (confirm('¿Eliminar este turno?')) {
+        const { error } = await _supabase.from('turnos').delete().eq('id', id);
+        if (!error) obtenerTurnos();
+    }
+}
+
 obtenerTurnos();
