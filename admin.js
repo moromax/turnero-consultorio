@@ -1,29 +1,44 @@
 // Configuración de Supabase
-const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const _supabase = supabase.createClient('TU_URL', 'TU_KEY');
 
 const tabla = document.getElementById('tablaTurnos');
 
-// Función para calcular fin (HH:mm) según el tipo de turno
-function calcularFin(hora, minutos) {
-    let [h, m] = hora.split(':').map(Number);
+// Función auxiliar para sumar minutos a una hora HH:MM
+function calcularFin(horaInicio, minutos) {
+    let [hrs, mins] = horaInicio.split(':').map(Number);
     let date = new Date();
-    date.setHours(h, m + minutos, 0);
-    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    date.setHours(hrs, mins + minutos);
+    return date.toTimeString().substring(0, 5);
+}
+
+// NUEVA: Función para verificar si hay choque de horarios
+async function haySolapamiento(id, fecha, inicio, fin) {
+    const { data, error } = await _supabase
+        .from('turnos')
+        .select('id, hora_inicio, hora_fin')
+        .eq('fecha', fecha)
+        .neq('id', id); // Ignorar el turno que estamos editando actualmente
+
+    if (error) return false;
+
+    // Lógica de solapamiento: (InicioA < FinB) y (FinA > InicioB)
+    return data.some(turno => {
+        return (inicio < turno.hora_fin && fin > turno.hora_inicio);
+    });
 }
 
 async function obtenerTurnos() {
-    const fecha = document.getElementById('filtroFecha').value;
-    const dni = document.getElementById('filtroDni').value;
+    const filtroFecha = document.getElementById('filtroFecha').value;
+    const filtroDni = document.getElementById('filtroDni').value;
 
-    let query = _supabase.from('turnos').select('*').order('fecha', { ascending: true }).order('hora_inicio', { ascending: true });
+    let consulta = _supabase.from('turnos').select('*').order('hora_inicio', { ascending: true });
 
-    if (fecha) query = query.eq('fecha', fecha);
-    if (dni) query = query.ilike('dni', `%${dni}%`);
+    if (filtroFecha) consulta = consulta.eq('fecha', filtroFecha);
+    if (filtroDni) consulta = consulta.ilike('dni', `%${filtroDni}%`);
 
-    const { data, error } = await query;
-    if (!error) renderizarTabla(data);
+    const { data, error } = await consulta;
+    if (error) console.error(error);
+    else renderizarTabla(data);
 }
 
 function renderizarTabla(turnos) {
@@ -46,25 +61,22 @@ function renderizarTabla(turnos) {
 }
 
 async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tipoAct) {
-    // Pedir datos paso a paso
-    const nuevoNombre = prompt("Nombre del paciente:", nombreAct) || nombreAct;
-    const nuevoDni = prompt("DNI (solo números):", dniAct) || dniAct;
+    const nuevoNombre = prompt("Nombre:", nombreAct) || nombreAct;
+    const nuevoDni = prompt("DNI:", dniAct) || dniAct;
     const nuevaFecha = prompt("Fecha (AAAA-MM-DD):", fechaAct) || fechaAct;
-    
-    let nuevoTipo = prompt("Tipo (Escribe: Primera vez / Control):", tipoAct) || tipoAct;
-    // Validar que el tipo sea uno de los dos permitidos
-    if (nuevoTipo !== 'Primera vez' && nuevoTipo !== 'Control') {
-        alert("Tipo de turno inválido. Se mantendrá el original.");
-        nuevoTipo = tipoAct;
-    }
+    const nuevoTipo = prompt("Tipo (Primera vez / Control):", tipoAct) || tipoAct;
+    const nuevaHora = prompt("Hora inicio (HH:MM):", horaAct.substring(0,5)) || horaAct;
 
-    const nuevaHora = prompt("Hora de inicio (HH:MM):", horaAct.substring(0,5)) || horaAct;
-
-    // Validaciones
-    if (!/^[0-9]{7,8}$/.test(nuevoDni)) return alert("DNI debe ser de 7 u 8 números.");
-    
     const duracion = nuevoTipo === 'Primera vez' ? 40 : 20;
     const nuevaHoraFin = calcularFin(nuevaHora, duracion);
+
+    // VALIDACIÓN DE CHOQUE
+    const solapa = await haySolapamiento(id, nuevaFecha, nuevaHora, nuevaHoraFin);
+    
+    if (solapa) {
+        alert("⚠️ ¡Atención! Este horario se solapa con otro turno ya agendado. Por favor elige otra hora.");
+        return;
+    }
 
     const { error } = await _supabase
         .from('turnos')
@@ -78,20 +90,20 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
         })
         .eq('id', id);
 
-    if (error) {
-        alert("Error al actualizar: " + error.message);
-    } else {
+    if (error) alert("Error al actualizar: " + error.message);
+    else {
         alert("Turno actualizado correctamente.");
         obtenerTurnos();
     }
 }
 
 async function eliminarTurno(id) {
-    if (confirm('¿Estás seguro de que deseas eliminar este turno?')) {
+    if (confirm("¿Seguro que quieres eliminar este turno?")) {
         const { error } = await _supabase.from('turnos').delete().eq('id', id);
-        if (!error) obtenerTurnos();
+        if (error) alert(error.message);
+        else obtenerTurnos();
     }
 }
 
-// Cargar turnos al abrir la página
+// Carga inicial
 obtenerTurnos();
