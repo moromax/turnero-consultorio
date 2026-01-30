@@ -1,7 +1,7 @@
-/* 1. IMPORTACIÓN DE FUENTE */
+/* 1. IMPORTACIÓN DE FUENTE GOOGLE SANS */
 @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
 
-/* 2. RESET Y FUENTE GLOBAL */
+/* 2. RESET TOTAL */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -47,7 +47,7 @@ h1 {
     flex-wrap: wrap;
 }
 
-input, select {
+input {
     padding: 12px 16px;
     border: 1px solid #dadce0;
     border-radius: 8px;
@@ -56,13 +56,13 @@ input, select {
     font-family: inherit;
 }
 
-/* 4. BOTONES (Sin bordes negros) */
+/* 4. BOTONES SIN BORDES */
 button {
     cursor: pointer;
     font-weight: 500;
-    border: none !important; /* ELIMINA EL BORDE NEGRO */
-    outline: none !important;
-    border-radius: 100px !important; /* Píldora */
+    border: none !important; /* ELIMINA BORDES NEGROS */
+    outline: none !important; /* ELIMINA EL BORDE DE CLICK */
+    border-radius: 100px !important;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
@@ -70,10 +70,11 @@ button {
     gap: 8px;
     color: white;
     font-family: inherit;
+    text-decoration: none;
 }
 
 button:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
 }
 
 .btn-buscar {
@@ -86,13 +87,13 @@ button:active {
 .btn-edit {
     background-color: #1a73e8 !important;
     padding: 8px 20px !important;
-    min-width: 90px;
+    min-width: 95px;
 }
 
 .btn-delete {
     background-color: #d93025 !important;
     padding: 8px 20px !important;
-    min-width: 90px;
+    min-width: 95px;
 }
 
 /* 5. TABLA */
@@ -118,6 +119,7 @@ td {
     padding: 18px 16px;
     border-bottom: 1px solid #e8eaed;
     font-size: 14px;
+    color: #3c4043;
 }
 
 td:last-child {
@@ -125,9 +127,9 @@ td:last-child {
     gap: 10px;
 }
 
-/* 6. MÓVIL */
+/* 6. RESPONSIVE */
 @media (max-width: 768px) {
     .filtros { flex-direction: column; }
-    input, select, .btn-buscar { width: 100%; }
+    input, .btn-buscar { width: 100%; }
     td:last-child { flex-direction: column; }
 }
