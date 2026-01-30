@@ -1,4 +1,7 @@
-/* 1. Base y Reset */
+/* 1. Importación de Google Sans Flex (desde Google Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap');
+
+/* 2. Base y Reset */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,7 +9,8 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, sans-serif;
+    /* Aplicamos la fuente Google Sans Flex (vía Roboto Flex que es su versión abierta) */
+    font-family: 'Roboto Flex', sans-serif;
     background-color: #f8fafc;
     color: #1e293b;
     padding: 20px;
@@ -14,125 +18,129 @@ body {
     justify-content: center;
 }
 
-/* 2. Contenedor Principal */
+/* 3. Contenedor Principal */
 .container, .container-admin {
     background: white;
-    padding: 30px;
-    border-radius: 20px; 
+    padding: 35px;
+    border-radius: 24px; 
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto; /* Centrado absoluto */
+    margin: 0 auto;
 }
 
 h1 {
     color: #0f172a;
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     font-weight: 800;
+    letter-spacing: -0.5px;
 }
 
-/* 3. Filtros (Área de arriba) */
+/* 4. Filtros (Área de arriba) - Corregida para evitar desplazamientos */
 .filtros {
     display: flex;
-    gap: 12px;
+    gap: 15px;
     margin-bottom: 30px;
     background: #f1f5f9;
     padding: 20px;
-    border-radius: 16px;
+    border-radius: 18px;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
 }
 
 input, select {
-    padding: 10px 16px;
+    padding: 12px 18px;
     border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    font-size: 14px;
-    height: 45px;
-    min-width: 180px;
+    border-radius: 12px;
+    font-size: 15px;
+    height: 48px;
+    min-width: 200px;
+    background: white;
 }
 
-/* 4. BOTONES (Reset general) */
+/* 5. BOTONES ESTILO PÍLDORA (Definitivo) */
 button {
     cursor: pointer;
     font-weight: 600;
     border: none;
-    border-radius: 50px !important; /* Píldora */
+    border-radius: 100px !important; /* Píldora perfecta */
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     color: white;
     white-space: nowrap;
 }
 
-/* Botón Buscar (AZUL VIBRANTE) */
+button:active { transform: scale(0.96); }
+
+/* BOTÓN BUSCAR (AZUL VIBRANTE CORREGIDO) */
 .btn-buscar {
-    background-color: #2563eb !important; 
+    background-color: #1a73e8 !important; /* Azul Google */
     color: white !important;
-    padding: 0 25px !important;
-    height: 45px; /* Misma altura que los inputs */
+    padding: 0 30px !important;
+    height: 48px; 
     font-size: 15px;
-    min-width: 180px;
+    min-width: 200px;
+    box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);
 }
 
-.btn-buscar:hover { background-color: #1d4ed8 !important; }
+.btn-buscar:hover {
+    background-color: #1557b0 !important;
+    box-shadow: 0 6px 12px rgba(26, 115, 232, 0.3);
+}
 
-/* 5. Tabla */
+/* 6. Tabla y Acciones */
 .table-container {
     width: 100%;
-    overflow-x: auto; /* Permite scroll si la tabla es muy ancha */
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
 }
 
 th {
     text-align: left;
-    padding: 12px;
+    padding: 15px;
     color: #64748b;
     font-size: 13px;
     text-transform: uppercase;
+    font-weight: 700;
     border-bottom: 2px solid #f1f5f9;
 }
 
 td {
-    padding: 15px 12px;
+    padding: 18px 15px;
     border-bottom: 1px solid #f1f5f9;
-    font-size: 14px;
-    vertical-align: middle;
+    font-size: 15px;
 }
 
-/* Botones de Acción en la tabla */
 .btn-edit {
     background-color: #3b82f6 !important;
-    min-width: 85px;
-    height: 35px;
-    font-size: 13px;
+    min-width: 95px;
+    height: 38px;
 }
 
 .btn-delete {
     background-color: #ef4444 !important;
-    min-width: 85px;
-    height: 35px;
-    font-size: 13px;
+    min-width: 95px;
+    height: 38px;
 }
 
-/* 6. Diseño para Móviles */
+/* Columna de Acciones - Layout Horizontal */
+td:last-child {
+    display: flex;
+    gap: 8px;
+}
+
+/* 7. Diseño Móvil */
 @media (max-width: 768px) {
     .filtros { flex-direction: column; }
     input, select, .btn-buscar { width: 100%; }
-    
-    /* Botones uno arriba del otro en móvil */
-    td:last-child {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
+    td:last-child { flex-direction: column; }
 }
