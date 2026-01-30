@@ -8,71 +8,58 @@
 </head>
 <body>
     <div class="container-admin">
-        <h1 style="text-align:center;">Reserva tu Turno</h1>
+        <h1>Reserva tu Turno</h1>
         
-        <div class="filtros" style="display: flex; flex-direction: column; background: none; padding: 0;">
-            <label>Nombre Completo:</label>
-            <input type="text" id="nombre" placeholder="Ej: Juan Pérez" style="width:100%; margin-bottom:15px;">
-            
-            <label>DNI (solo números, 7 u 8 cifras):</label>
-            <input type="text" id="dni" placeholder="Ej: 12345678" style="width:100%; margin-bottom:15px;">
-            
-            <label>Tipo de Turno:</label>
-            <select id="tipo" onchange="cargarHorarios()" style="width:100%; margin-bottom:15px;">
-                <option value="Control">Control (20 min)</option>
-                <option value="Primera vez">Primera vez (40 min)</option>
-            </select>
-            
-            <label>Fecha:</label>
-            <input type="date" id="fecha" onchange="cargarHorarios()" style="width:100%; margin-bottom:15px;">
+        <label>Nombre Completo:</label>
+        <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
+        
+        <label>DNI:</label>
+        <input type="text" id="dni" placeholder="Ej: 12345678">
+        
+        <label>Tipo de Turno:</label>
+        <select id="tipo" onchange="cargarHorarios()">
+            <option value="Control">Control (20 min)</option>
+            <option value="Primera vez">Primera vez (40 min)</option>
+        </select>
+        
+        <label>Fecha:</label>
+        <input type="date" id="fecha" onchange="cargarHorarios()">
 
-            <p style="font-size: 14px; margin: 10px 0; color: #5f6368;">Selecciona un Horario:</p>
-            <div id="gridHorarios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; width: 100%;"></div>
-            
-            <input type="hidden" id="horaSeleccionada">
+        <p>Selecciona un Horario:</p>
+        <div id="gridHorarios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; margin-top: 10px;"></div>
+        
+        <input type="hidden" id="horaSeleccionada">
 
-            <button onclick="reservar()" class="btn-buscar" style="width:100%; margin-top:30px; font-size: 16px;">Confirmar Reserva</button>
-        </div>
+        <button onclick="reservar()" id="btnConfirmar" style="margin-top: 30px; width: 100%;">Confirmar Reserva</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Configuración de tu proyecto
-        const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const _supabase = supabase.createClient('https://uekuyjoakqnhjltqrrpj.supabase.co', 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj');
 
         async function cargarHorarios() {
             const fecha = document.getElementById('fecha').value;
             const grid = document.getElementById('gridHorarios');
             if (!fecha) return;
 
-            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Buscando disponibilidad...</p>';
+            grid.innerHTML = 'Buscando...';
             
-            // 1. Obtener turnos existentes para esta fecha
-            const { data: ocupados, error } = await _supabase
+            const { data: ocupados } = await _supabase
                 .from('turnos')
                 .select('hora_inicio, hora_fin')
                 .eq('fecha', fecha);
             
-            if (error) {
-                grid.innerHTML = 'Error al cargar horarios.';
-                return;
-            }
-
             grid.innerHTML = '';
             
-            // 2. Generar slots cada 20 minutos (15:00 a 20:00)
             for (let h = 15; h < 20; h++) {
                 for (let m = 0; m < 60; m += 20) {
                     const horaActual = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
                     
-                    // 3. LOGICA DE SOLAPAMIENTO CORREGIDA
-                    // Un slot está libre si la hora NO está entre el inicio (inclusive) y el fin (exclusive) de otro turno.
+                    // LÓGICA DE TRANSICIÓN: Permite que si un turno termina 15:40, el slot 15:40 esté LIBRE
                     const estaOcupado = ocupados?.some(t => {
-                        const inicioExistente = t.hora_inicio.substring(0, 5);
-                        const finExistente = t.hora_fin.substring(0, 5);
-                        return (horaActual >= inicioExistente && horaActual < finExistente);
+                        const inicio = t.hora_inicio.substring(0, 5);
+                        const fin = t.hora_fin.substring(0, 5);
+                        return (horaActual >= inicio && horaActual < fin);
                     });
 
                     if (!estaOcupado) {
@@ -80,7 +67,6 @@
                         div.className = 'slot-hora';
                         div.innerText = horaActual;
                         div.onclick = () => {
-                            // Resaltar selección
                             document.querySelectorAll('.slot-hora').forEach(s => s.classList.remove('active'));
                             div.classList.add('active');
                             document.getElementById('horaSeleccionada').value = horaActual;
@@ -98,49 +84,31 @@
             const hIni = document.getElementById('horaSeleccionada').value;
             const tipo = document.getElementById('tipo').value;
 
-            if (!nombre || !dni || !fecha || !hIni) {
-                alert("Por favor, completa todos los campos y selecciona un horario.");
-                return;
-            }
+            if (!nombre || !dni || !fecha || !hIni) return alert("Completa todos los campos");
 
-            // 4. CALCULO DE HORA_FIN AUTOMATICO
+            // Cálculo dinámico para evitar error de 15:00 a 15:00
             const [h, m] = hIni.split(':').map(Number);
             const duracion = (tipo === 'Primera vez') ? 40 : 20;
-            const finDate = new Date(0, 0, 0, h, m + duracion);
-            const hFin = `${finDate.getHours().toString().padStart(2, '0')}:${finDate.getMinutes().toString().padStart(2, '0')}`;
+            const dFin = new Date(0, 0, 0, h, m + duracion);
+            const hFin = `${dFin.getHours().toString().padStart(2, '0')}:${dFin.getMinutes().toString().padStart(2, '0')}`;
 
-            // 5. DOBLE VERIFICACION (Evita que dos personas reserven el mismo slot a la vez)
-            const { data: colision } = await _supabase
-                .from('turnos')
-                .select('id')
-                .eq('fecha', fecha)
-                .eq('hora_inicio', hIni);
-
-            if (colision && colision.length > 0) {
-                alert("Lo sentimos, este horario acaba de ser reservado. Por favor, elige otro.");
+            // Validación de solapamiento de último segundo
+            const { data: choque } = await _supabase.from('turnos').select('id').eq('fecha', fecha).eq('hora_inicio', hIni);
+            if (choque && choque.length > 0) {
+                alert("Horario ocupado, elige otro.");
                 return cargarHorarios();
             }
 
-            // 6. INSERCIÓN EN LA BASE DE DATOS
             const { error } = await _supabase.from('turnos').insert([{
-                nombre: nombre,
-                dni: dni,
-                fecha: fecha,
-                hora_inicio: hIni,
-                hora_fin: hFin,
-                tipo_turno: tipo
+                nombre, dni, fecha, hora_inicio: hIni, hora_fin: hFin, tipo_turno: tipo
             }]);
 
             if (error) {
-                // Manejo de error de validación de DNI en Supabase
-                if (error.message.includes('turnos_dni_check')) {
-                    alert("DNI inválido. Debe contener entre 7 y 8 números.");
-                } else {
-                    alert("Error al reservar: " + error.message);
-                }
+                if (error.message.includes('turnos_dni_check')) alert("DNI inválido (7 u 8 números)");
+                else alert("Error: " + error.message);
             } else {
-                alert("✅ ¡Turno reservado con éxito!");
-                location.reload(); // Recargar para limpiar el formulario
+                alert("✅ Turno reservado");
+                location.reload();
             }
         }
     </script>
