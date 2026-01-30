@@ -1,7 +1,4 @@
-/* 1. IMPORTACIÓN DE FUENTE */
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap');
-
-/* 2. RESET Y FUENTE GLOBAL */
+/* 1. RESET Y FUENTE */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -9,88 +6,83 @@
 }
 
 body {
-    font-family: 'Roboto Flex', sans-serif !important;
-    background-color: #f1f5f9;
-    color: #1e293b;
+    /* Aplicando la estética de Google Sans */
+    font-family: 'Product Sans', 'Google Sans', sans-serif !important;
+    background-color: #f1f3f4;
+    color: #3c4043;
     padding: 20px;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
 }
 
-/* 3. CONTENEDOR PRINCIPAL */
 .container-admin {
     background: white;
     padding: 40px;
-    border-radius: 24px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    border-radius: 28px;
+    box-shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
     width: 100%;
-    max-width: 1100px;
-    display: flex;
-    flex-direction: column;
+    max-width: 1050px;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    font-weight: 800;
+    font-weight: 400;
     font-size: 28px;
-    color: #0f172a;
+    color: #202124;
 }
 
-/* 4. FILTROS (La caja gris donde están los inputs) */
+/* 2. FILTROS (Caja corregida) */
 .filtros {
-    display: flex; /* Alineación en línea */
-    gap: 15px;
-    margin-bottom: 35px;
-    background: #f8fafc;
-    padding: 25px;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+    background: #f8f9fa;
+    padding: 24px;
     border-radius: 20px;
-    border: 1px solid #e2e8f0;
     align-items: center;
-    justify-content: center; /* Centra todo el bloque */
-    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap; /* Para que en móvil se acomode solo */
 }
 
 input, select {
     padding: 12px 16px;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
     font-size: 15px;
-    height: 50px;
-    min-width: 200px;
+    height: 48px;
     font-family: inherit;
-    background-color: white;
+    transition: border-color 0.2s;
 }
 
-/* 5. EL BOTÓN DE BUSCAR (AZUL GOOGLE) */
+input:focus {
+    border-color: #1a73e8;
+    outline: none;
+}
+
+/* 3. BOTÓN BUSCAR (AZUL GOOGLE) */
 .btn-buscar {
-    background-color: #1a73e8 !important; /* Azul Google */
+    background-color: #1a73e8 !important;
     color: white !important;
-    font-weight: 700 !important;
-    padding: 0 30px !important;
-    height: 50px;
-    border-radius: 100px !important;
-    font-size: 15px;
+    font-weight: 500 !important;
+    padding: 0 24px !important;
+    height: 48px;
+    border-radius: 24px !important; /* Píldora */
+    font-size: 14px;
     cursor: pointer;
     border: none;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 10px rgba(26, 115, 232, 0.2);
+    gap: 8px;
+    box-shadow: none;
 }
 
 .btn-buscar:hover {
-    background-color: #1557b0 !important;
-    transform: translateY(-1px);
+    background-color: #174ea6 !important;
+    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
 }
 
-/* 6. TABLA Y ACCIONES */
-.table-container {
-    overflow-x: auto;
-}
-
+/* 4. TABLA */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -98,44 +90,42 @@ table {
 
 th {
     text-align: left;
-    padding: 15px;
-    color: #64748b;
-    font-size: 13px;
+    padding: 12px 16px;
+    color: #70757a;
+    font-size: 12px;
     text-transform: uppercase;
-    font-weight: 800;
-    border-bottom: 2px solid #f1f5f9;
+    font-weight: 700;
+    border-bottom: 1px solid #e8eaed;
 }
 
 td {
-    padding: 20px 15px;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 15px;
+    padding: 20px 16px;
+    border-bottom: 1px solid #e8eaed;
+    font-size: 14px;
 }
 
+/* BOTONES ACCIÓN */
 .btn-edit, .btn-delete {
-    border-radius: 100px !important;
-    padding: 8px 18px !important;
-    font-weight: 600 !important;
+    border-radius: 18px !important;
+    padding: 8px 20px !important;
+    font-weight: 500 !important;
     font-size: 13px !important;
     color: white !important;
-    min-width: 95px;
+    min-width: 90px;
+    height: 36px;
 }
 
-.btn-edit { background-color: #3b82f6 !important; }
-.btn-delete { background-color: #ef4444 !important; }
+.btn-edit { background-color: #1a73e8 !important; }
+.btn-delete { background-color: #d93025 !important; }
 
 td:last-child {
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
-/* 7. MÓVIL */
+/* 5. MÓVIL */
 @media (max-width: 768px) {
-    .filtros {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    input, select, .btn-buscar {
-        width: 100%;
-    }
+    .filtros { flex-direction: column; align-items: stretch; }
+    .btn-buscar { width: 100%; }
+    td:last-child { flex-direction: column; }
 }
