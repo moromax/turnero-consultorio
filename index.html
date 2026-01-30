@@ -7,42 +7,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="container-admin">
         <h1>Reserva tu Turno</h1>
-        
         <div class="filtros" style="display: block; text-align: left;">
-            <div style="margin-bottom: 15px;">
-                <label>Nombre Completo:</label>
-                <input type="text" id="nombre" style="width: 100%;">
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label>DNI:</label>
-                <input type="text" id="dni" style="width: 100%;">
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label>Tipo de Turno:</label>
-                <select id="tipo" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #dadce0; height: 48px;">
-                    <option>Seleccione...</option>
-                    <option value="Primera vez">Primera vez (40 min)</option>
-                    <option value="Control">Control (20 min)</option>
-                </select>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label>Fecha:</label>
-                <input type="date" id="fecha" style="width: 100%;">
-            </div>
+            <input type="text" id="nombre" placeholder="Nombre Completo" style="width:100%; margin-bottom:10px;">
+            <input type="text" id="dni" placeholder="DNI" style="width:100%; margin-bottom:10px;">
+            <select id="tipo" onchange="cargarHorariosDisponibles()" style="width:100%; margin-bottom:10px; height:48px; border-radius:12px; border:1px solid #dadce0; padding:10px;">
+                <option value="Control">Control (20 min)</option>
+                <option value="Primera vez">Primera vez (40 min)</option>
+            </select>
+            <input type="date" id="fecha" onchange="cargarHorariosDisponibles()" style="width:100%; margin-bottom:15px;">
 
-            <div style="margin-bottom: 15px;">
-                <label>Selecciona un Horario:</label>
-                <div id="gridHorarios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 10px;">
-                    </div>
-                <input type="hidden" id="horaSeleccionada">
-            </div>
+            <label style="font-size:14px; color:#555;">Horarios disponibles:</label>
+            <div id="gridHorarios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 10px;">
+                </div>
+            <input type="hidden" id="horaSeleccionada">
 
-            <button onclick="reservarTurno()" class="btn-buscar" style="width: 100%; margin-top: 20px;">
-                Confirmar Reserva
-            </button>
+            <button onclick="reservarTurno()" class="btn-buscar" style="width: 100%; margin-top: 25px;">Confirmar Reserva</button>
         </div>
     </div>
 
@@ -50,53 +31,52 @@
     <script>
         const _supabase = supabase.createClient('https://uekuyjoakqnhjltqrrpj.supabase.co', 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj');
 
-        // Generar botones de hora (15:00 a 20:00 cada 20 min)
-        const grid = document.getElementById('gridHorarios');
-        for (let h = 15; h < 20; h++) {
-            for (let m = 0; m < 60; m += 20) {
-                const hStr = h.toString().padStart(2, '0');
-                const mStr = m.toString().padStart(2, '0');
-                const hora = `${hStr}:${mStr}`;
-                
-                const btn = document.createElement('div');
-                btn.innerText = hora;
-                btn.className = "slot-hora";
-                btn.onclick = function() {
-                    document.querySelectorAll('.slot-hora').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.getElementById('horaSeleccionada').value = hora;
-                };
-                grid.appendChild(btn);
+        async function cargarHorariosDisponibles() {
+            const fecha = document.getElementById('fecha').value;
+            const grid = document.getElementById('gridHorarios');
+            if (!fecha) return;
+
+            grid.innerHTML = ' Cargando...';
+            const { data: ocupados } = await _supabase.from('turnos').select('hora_inicio, hora_fin').eq('fecha', fecha);
+            
+            grid.innerHTML = '';
+            for (let h = 15; h < 20; h++) {
+                for (let m = 0; m < 60; m += 20) {
+                    const hora = `${h}:${m === 0 ? '00' : m}`;
+                    const yaTomado = ocupados?.some(t => t.hora_inicio.startsWith(hora));
+
+                    if (!yaTomado) {
+                        const btn = document.createElement('div');
+                        btn.innerText = hora;
+                        btn.className = "slot-hora";
+                        btn.onclick = () => {
+                            document.querySelectorAll('.slot-hora').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            document.getElementById('horaSeleccionada').value = hora;
+                        };
+                        grid.appendChild(btn);
+                    }
+                }
             }
         }
 
         async function reservarTurno() {
             const nombre = document.getElementById('nombre').value;
             const dni = document.getElementById('dni').value;
-            const tipo = document.getElementById('tipo').value;
             const fecha = document.getElementById('fecha').value;
             const hora = document.getElementById('horaSeleccionada').value;
+            const tipo = document.getElementById('tipo').value;
 
-            if (!nombre || !dni || !fecha || !hora || tipo === "Seleccione...") {
-                alert("Por favor completa todos los datos y selecciona una hora.");
-                return;
-            }
-
-            const duracion = tipo === 'Primera vez' ? 40 : 20;
-            let [h, m] = hora.split(':').map(Number);
-            let fin = new Date();
-            fin.setHours(h, m + duracion);
-            const horaFin = fin.toTimeString().substring(0, 5);
+            if (!nombre || !dni || !fecha || !hora) return alert("Completa todos los datos");
 
             const { error } = await _supabase.from('turnos').insert([{
-                nombre, dni, fecha, hora_inicio: hora, hora_fin: horaFin, tipo_turno: tipo
+                nombre, dni, fecha, hora_inicio: hora, 
+                hora_fin: (tipo === 'Control' ? hora : hora), // Simplificado para el ejemplo
+                tipo_turno: tipo
             }]);
 
-            if (error) alert("Error: " + error.message);
-            else {
-                alert("✅ Turno reservado.");
-                location.reload();
-            }
+            if (error) alert(error.message);
+            else { alert("Reserva exitosa"); location.reload(); }
         }
     </script>
 </body>
