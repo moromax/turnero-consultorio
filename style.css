@@ -1,7 +1,7 @@
-/* 1. Importación de Google Sans Flex (desde Google Fonts) */
+/* 1. IMPORTACIÓN DE FUENTE (Roboto Flex) */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap');
 
-/* 2. Base y Reset */
+/* 2. RESET TOTAL */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -9,96 +9,72 @@
 }
 
 body {
-    /* Aplicamos la fuente Google Sans Flex (vía Roboto Flex que es su versión abierta) */
-    font-family: 'Roboto Flex', sans-serif;
-    background-color: #f8fafc;
+    font-family: 'Roboto Flex', sans-serif !important;
+    background-color: #f0f4f8;
     color: #1e293b;
     padding: 20px;
     display: flex;
     justify-content: center;
 }
 
-/* 3. Contenedor Principal */
-.container, .container-admin {
+.container-admin {
     background: white;
     padding: 35px;
-    border-radius: 24px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
+    max-width: 1050px;
+    position: relative;
 }
 
-h1 {
-    color: #0f172a;
-    text-align: center;
-    margin-bottom: 30px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-}
-
-/* 4. Filtros (Área de arriba) - Corregida para evitar desplazamientos */
+/* 3. FILTROS: ESTRUCTURA RÍGIDA (Soluciona el botón fugitivo) */
 .filtros {
-    display: flex;
+    display: grid; /* Cambiamos a Grid para control total */
+    grid-template-columns: 1fr 1fr auto; /* Dos inputs y el botón al final */
     gap: 15px;
-    margin-bottom: 30px;
-    background: #f1f5f9;
-    padding: 20px;
-    border-radius: 18px;
-    flex-wrap: wrap;
+    margin-bottom: 35px;
+    background: #f8fafc;
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
     align-items: center;
-    justify-content: center;
 }
 
 input, select {
-    padding: 12px 18px;
+    width: 100%;
+    padding: 12px 16px;
     border: 1px solid #cbd5e1;
     border-radius: 12px;
     font-size: 15px;
     height: 48px;
-    min-width: 200px;
-    background: white;
+    font-family: inherit;
 }
 
-/* 5. BOTONES ESTILO PÍLDORA (Definitivo) */
-button {
-    cursor: pointer;
-    font-weight: 600;
-    border: none;
-    border-radius: 100px !important; /* Píldora perfecta */
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: white;
-    white-space: nowrap;
-}
-
-button:active { transform: scale(0.96); }
-
-/* BOTÓN BUSCAR (AZUL VIBRANTE CORREGIDO) */
+/* 4. BOTÓN BUSCAR (AZUL GOOGLE) */
 .btn-buscar {
-    background-color: #1a73e8 !important; /* Azul Google */
+    background-color: #1a73e8 !important; /* Azul oficial de Google */
     color: white !important;
+    font-weight: 700 !important;
     padding: 0 30px !important;
-    height: 48px; 
+    height: 48px;
+    border-radius: 100px !important;
     font-size: 15px;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     min-width: 200px;
-    box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
 }
 
 .btn-buscar:hover {
     background-color: #1557b0 !important;
-    box-shadow: 0 6px 12px rgba(26, 115, 232, 0.3);
 }
 
-/* 6. Tabla y Acciones */
-.table-container {
-    width: 100%;
-    overflow-x: auto;
-}
+.btn-buscar i { font-size: 16px; }
 
+/* 5. TABLA Y BOTONES DE ACCIÓN */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -108,9 +84,9 @@ th {
     text-align: left;
     padding: 15px;
     color: #64748b;
-    font-size: 13px;
+    font-size: 12px;
     text-transform: uppercase;
-    font-weight: 700;
+    font-weight: 800;
     border-bottom: 2px solid #f1f5f9;
 }
 
@@ -120,27 +96,29 @@ td {
     font-size: 15px;
 }
 
-.btn-edit {
-    background-color: #3b82f6 !important;
-    min-width: 95px;
-    height: 38px;
+.btn-edit, .btn-delete {
+    border-radius: 100px !important;
+    padding: 8px 18px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: white !important;
+    border: none;
+    cursor: pointer;
+    min-width: 90px;
 }
 
-.btn-delete {
-    background-color: #ef4444 !important;
-    min-width: 95px;
-    height: 38px;
-}
+.btn-edit { background-color: #3b82f6 !important; }
+.btn-delete { background-color: #ef4444 !important; }
 
-/* Columna de Acciones - Layout Horizontal */
 td:last-child {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
-/* 7. Diseño Móvil */
+/* 6. RESPONSIVO (Móvil) */
 @media (max-width: 768px) {
-    .filtros { flex-direction: column; }
-    input, select, .btn-buscar { width: 100%; }
-    td:last-child { flex-direction: column; }
+    .filtros {
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+    }
+    .btn-buscar { width: 100%; }
 }
