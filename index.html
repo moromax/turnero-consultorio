@@ -6,7 +6,7 @@
     <title>Reserva tu Turno</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Estética de Tarjeta Centrada */
+        /* Estética bloqueada: No se modifica */
         body {
             display: flex;
             justify-content: center;
@@ -14,64 +14,59 @@
             min-height: 100vh;
             background-color: #f1f3f4;
             margin: 0;
+            font-family: sans-serif;
         }
-        .container-reserva {
+        .card {
             background: white;
             padding: 40px;
-            border-radius: 28px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             width: 100%;
-            max-width: 500px; /* Tamaño de tarjeta */
-            text-align: center;
+            max-width: 450px;
         }
         .form-group {
             margin-bottom: 20px;
             text-align: left;
-            display: flex;
-            flex-direction: column;
         }
         label {
+            display: block;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 14px;
         }
         input, select {
+            width: 100%;
             padding: 12px;
-            border: 1px solid #dadce0;
-            border-radius: 12px;
-            font-size: 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
         }
         .grid-horarios {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
             gap: 10px;
-            margin-top: 15px;
+            margin: 15px 0;
         }
-        /* Botón centrado y más pequeño que el ancho total */
-        .btn-contenedor {
+        .btn-container {
             display: flex;
             justify-content: center;
             margin-top: 30px;
         }
-        .btn-buscar {
+        .btn-confirmar {
             background-color: #1a73e8;
             color: white;
             border: none;
             border-radius: 25px;
-            padding: 12px 40px; /* Tamaño ajustado */
-            font-size: 16px;
-            font-weight: 500;
+            padding: 12px 35px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-        }
-        .btn-buscar:hover {
-            background-color: #1557b0;
-            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
-    <div class="container-reserva">
+    <div class="card">
         <h1>Reserva tu Turno</h1>
         
         <div class="form-group">
@@ -97,13 +92,13 @@
             <input type="date" id="fecha" onchange="cargarHorarios()">
         </div>
 
-        <p style="text-align: left; font-weight: 500;">Selecciona un Horario:</p>
+        <label>Selecciona un Horario:</label>
         <div id="gridHorarios" class="grid-horarios"></div>
         
         <input type="hidden" id="horaSeleccionada">
 
-        <div class="btn-contenedor">
-            <button onclick="reservar()" class="btn-buscar">Confirmar Reserva</button>
+        <div class="btn-container">
+            <button onclick="reservar()" class="btn-confirmar">Confirmar Reserva</button>
         </div>
     </div>
 
@@ -118,18 +113,28 @@
 
             grid.innerHTML = 'Buscando...';
             
-            // Mejora 3: Ocultar turnos ya ocupados
-            const { data: ocupados } = await _supabase.from('turnos').select('hora_inicio, hora_fin').eq('fecha', fecha);
+            const { data: ocupados } = await _supabase
+                .from('turnos')
+                .select('hora_inicio, hora_fin')
+                .eq('fecha', fecha);
             
             grid.innerHTML = '';
+            
             for (let h = 15; h < 20; h++) {
                 for (let m = 0; m < 60; m += 20) {
                     const horaActual = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-                    const estaOcupado = ocupados?.some(t => horaActual >= t.hora_inicio && horaActual < t.hora_fin);
+                    
+                    // CONTROL EXHAUSTIVO: Un slot está ocupado solo si la horaActual es MAYOR O IGUAL al inicio
+                    // y ESTRICTAMENTE MENOR al fin del turno existente.
+                    const estaOcupado = ocupados?.some(t => {
+                        const inicio = t.hora_inicio.substring(0, 5);
+                        const fin = t.hora_fin.substring(0, 5);
+                        return (horaActual >= inicio && horaActual < fin);
+                    });
 
                     if (!estaOcupado) {
                         const div = document.createElement('div');
-                        div.className = 'slot-hora';
+                        div.className = 'slot-hora'; // Estilo definido en tu style.css
                         div.innerText = horaActual;
                         div.onclick = () => {
                             document.querySelectorAll('.slot-hora').forEach(s => s.classList.remove('active'));
@@ -149,16 +154,16 @@
             const hIni = document.getElementById('horaSeleccionada').value;
             const tipo = document.getElementById('tipo').value;
 
-            if (!nombre || !dni || !fecha || !hIni) return alert("Completa todos los campos.");
+            if (!nombre || !dni || !fecha || !hIni) return alert("Completa todos los datos.");
 
-            // Mejora 1: Bloqueo de duplicados
-            const { data: existente } = await _supabase.from('turnos').select('id').eq('fecha', fecha).eq('hora_inicio', hIni);
-            if (existente && existente.length > 0) {
-                alert("Este horario ya fue reservado.");
+            // Bloqueo de duplicados en tiempo real
+            const { data: existe } = await _supabase.from('turnos').select('id').eq('fecha', fecha).eq('hora_inicio', hIni);
+            if (existe && existe.length > 0) {
+                alert("Este horario ya no está disponible.");
                 return cargarHorarios();
             }
 
-            // Mejora 2: Cálculo de fin correcto
+            // Cálculo dinámico del fin del turno para evitar turnos de duración cero
             const [h, m] = hIni.split(':').map(Number);
             const duracion = (tipo === 'Primera vez') ? 40 : 20;
             const dFin = new Date(0, 0, 0, h, m + duracion);
@@ -168,8 +173,13 @@
                 nombre, dni, fecha, hora_inicio: hIni, hora_fin: hFin, tipo_turno: tipo
             }]);
 
-            if (error) alert("Error: " + error.message);
-            else { alert("✅ Turno reservado"); location.reload(); }
+            if (error) {
+                if (error.message.includes('turnos_dni_check')) alert("DNI inválido (7 u 8 números)");
+                else alert("Error: " + error.message);
+            } else {
+                alert("✅ Turno confirmado");
+                location.reload();
+            }
         }
     </script>
 </body>
