@@ -1,17 +1,10 @@
-/* 1. IMPORTACIÓN DE FUENTE GOOGLE SANS */
 @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
 
-/* 2. RESET TOTAL */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Product Sans', sans-serif !important;
     background-color: #f1f3f4;
-    color: #3c4043;
     padding: 20px;
     display: flex;
     justify-content: center;
@@ -21,115 +14,53 @@ body {
     background: white;
     padding: 40px;
     border-radius: 28px;
-    box-shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     width: 100%;
     max-width: 1100px;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-weight: 400;
-    font-size: 28px;
-    color: #202124;
-}
+h1 { text-align: center; margin-bottom: 30px; font-weight: 400; color: #202124; }
 
-/* 3. FILTROS */
 .filtros {
     display: flex;
-    gap: 16px;
-    margin-bottom: 40px;
+    gap: 15px;
+    margin-bottom: 35px;
     background: #f8f9fa;
-    padding: 24px;
+    padding: 25px;
     border-radius: 20px;
-    align-items: center;
     justify-content: center;
     flex-wrap: wrap;
 }
 
 input {
-    padding: 12px 16px;
+    padding: 10px 15px;
     border: 1px solid #dadce0;
-    border-radius: 8px;
-    font-size: 15px;
+    border-radius: 12px;
     height: 48px;
     font-family: inherit;
 }
 
-/* 4. BOTONES SIN BORDES */
+/* BOTONES SIN BORDES */
 button {
     cursor: pointer;
-    font-weight: 500;
-    border: none !important; /* ELIMINA BORDES NEGROS */
-    outline: none !important; /* ELIMINA EL BORDE DE CLICK */
+    border: none !important; 
+    outline: none !important;
     border-radius: 100px !important;
-    transition: all 0.2s ease;
+    color: white;
+    font-weight: 500;
+    font-family: inherit;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: white;
-    font-family: inherit;
-    text-decoration: none;
+    transition: background 0.2s;
 }
 
-button:active {
-    transform: scale(0.96);
-}
+.btn-buscar { background-color: #1a73e8 !important; height: 48px; padding: 0 30px !important; }
+.btn-edit { background-color: #1a73e8 !important; padding: 8px 20px !important; }
+.btn-delete { background-color: #d93025 !important; padding: 8px 20px !important; }
 
-.btn-buscar {
-    background-color: #1a73e8 !important;
-    padding: 0 24px !important;
-    height: 48px;
-    min-width: 200px;
-}
-
-.btn-edit {
-    background-color: #1a73e8 !important;
-    padding: 8px 20px !important;
-    min-width: 95px;
-}
-
-.btn-delete {
-    background-color: #d93025 !important;
-    padding: 8px 20px !important;
-    min-width: 95px;
-}
-
-/* 5. TABLA */
-.table-container {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th {
-    text-align: left;
-    padding: 12px 16px;
-    color: #70757a;
-    font-size: 12px;
-    text-transform: uppercase;
-    border-bottom: 1px solid #e8eaed;
-}
-
-td {
-    padding: 18px 16px;
-    border-bottom: 1px solid #e8eaed;
-    font-size: 14px;
-    color: #3c4043;
-}
-
-td:last-child {
-    display: flex;
-    gap: 10px;
-}
-
-/* 6. RESPONSIVE */
-@media (max-width: 768px) {
-    .filtros { flex-direction: column; }
-    input, .btn-buscar { width: 100%; }
-    td:last-child { flex-direction: column; }
-}
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 15px; color: #70757a; font-size: 12px; text-transform: uppercase; border-bottom: 2px solid #f1f3f4; }
+td { padding: 20px 15px; border-bottom: 1px solid #f1f3f4; font-size: 14px; }
+td:last-child { display: flex; gap: 10px; }
