@@ -106,7 +106,7 @@ td {
 
 /* BOTONES ACCIÓN */
 .btn-edit, .btn-delete {
-    border-radius: 18px !important;
+    border-radius: 0px !important;
     padding: 8px 20px !important;
     font-weight: 500 !important;
     font-size: 13px !important;
