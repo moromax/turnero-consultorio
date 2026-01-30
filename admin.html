@@ -5,25 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Turnos</title>
     <style>
-        body { font-family: sans-serif; background-color: #f1f3f4; padding: 20px; display: flex; justify-content: center; }
-        .container-admin { width: 100%; max-width: 1000px; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { font-size: 24px; margin-bottom: 25px; }
-        
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .filter-group { display: flex; gap: 10px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 20px; }
-        
-        input { padding: 12px; border: 1px solid #dee2e6; border-radius: 12px; font-size: 14px; }
+        /* 1. IMPORTACIÓN DE FUENTE (ESTILO GOOGLE SANS) */
+        @import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap');
 
-        /* Estilos de botones solicitados */
-        .btn-buscar { background-color: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .btn-nuevo { background-color: #34a853; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        /* 2. APLICACIÓN GLOBAL */
+        * {
+            box-sizing: border-box;
+            font-family: 'Lexend Deca', sans-serif !important;
+        }
+
+        body { 
+            background-color: #f1f3f4; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            margin: 0;
+        }
+
+        .container-admin { 
+            width: 100%; 
+            max-width: 1000px; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 30px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        }
+
+        h1 { 
+            font-size: 24px; 
+            margin-bottom: 25px; 
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+        
+        .header-actions { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px; 
+        }
+
+        .filter-group { 
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 20px; 
+        }
+        
+        input { 
+            padding: 12px; 
+            border: 1px solid #dee2e6; 
+            border-radius: 12px; 
+            font-size: 14px; 
+        }
+
+        /* BOTONES ESTILO PÍLDORA V1 */
+        .btn-buscar { 
+            background-color: #1a73e8; 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 100px; /* Píldora perfecta */
+            cursor: pointer; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: transform 0.2s;
+        }
+
+        .btn-nuevo { 
+            background-color: #34a853; 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 100px; /* Píldora perfecta */
+            cursor: pointer; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: transform 0.2s;
+        }
+
+        .btn-buscar:hover, .btn-nuevo:hover {
+            transform: translateY(-2px);
+        }
 
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { text-align: left; padding: 15px; border-bottom: 2px solid #eee; color: #5f6368; font-size: 13px; }
-        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { text-align: left; padding: 15px; border-bottom: 2px solid #eee; color: #5f6368; font-size: 13px; font-weight: 700; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #3c4043; }
         
-        .btn-edit { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 100px; cursor: pointer; }
-        .btn-delete { background: #d93025; color: white; border: none; padding: 8px 15px; border-radius: 100px; cursor: pointer; }
+        .btn-edit { background: #1a73e8; color: white; border: none; padding: 8px 18px; border-radius: 100px; cursor: pointer; font-size: 12px; }
+        .btn-delete { background: #d93025; color: white; border: none; padding: 8px 18px; border-radius: 100px; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -76,7 +152,7 @@
             tbody.innerHTML = turnos.map(t => `
                 <tr>
                     <td>${t.fecha.split('-').reverse().join('/')}</td>
-                    <td>${t.hora_inicio.substring(0,5)} - ${t.hora_fin.substring(0,5)}</td>
+                    <td style="font-weight:600;">${t.hora_inicio.substring(0,5)} - ${t.hora_fin.substring(0,5)}</td>
                     <td>${t.nombre}</td>
                     <td>${t.dni}</td>
                     <td>${t.tipo_turno}</td>
