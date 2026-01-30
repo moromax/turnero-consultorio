@@ -1,8 +1,8 @@
 /* Configuración General */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
     margin: 0;
     padding: 20px;
     display: flex;
@@ -12,144 +12,110 @@ body {
 .container, .container-admin {
     background: white;
     padding: 30px;
-    border-radius: 20px; /* Bordes de la caja más suaves */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border-radius: 16px; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
 }
 
 h1 {
-    color: #2c3e50;
+    color: #0f172a;
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 24px;
+    font-size: 24px;
     font-weight: 700;
 }
 
-/* Formularios y Filtros */
-form, .filtros {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
+/* Filtros */
 .filtros {
-    flex-direction: row;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    background: #f1f5f9;
+    padding: 20px;
+    border-radius: 12px;
     flex-wrap: wrap;
-    margin-bottom: 25px;
     align-items: center;
     justify-content: center;
 }
 
-label {
-    font-weight: bold;
-    margin-bottom: -10px;
-    font-size: 0.9em;
-    color: #555;
+input, select {
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
 }
 
-input, select, button {
-    padding: 12px 18px;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px; /* Entradas de texto curvas */
-    font-size: 16px;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-input:focus, select:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
+/* BOTONES ESTILO PÍLDORA */
 button {
     cursor: pointer;
     font-weight: 600;
     border: none;
-    color: white;
-    border-radius: 50px; /* BOTONES CURVOS (estilo píldora) */
-    display: flex;
+    border-radius: 9999px !important;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s, background 0.3s;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: white;
 }
 
-button:active {
-    transform: scale(0.96);
+/* Botón Buscar / Refrescar */
+.filtros button {
+    background-color: #10b981;
+    padding: 12px 24px;
 }
 
-/* Botones de la Página Principal */
+/* Formulario Paciente */
 #turnoForm button {
-    background-color: #27ae60;
-    margin-top: 10px;
-    padding: 15px;
-}
-
-#turnoForm button:hover {
-    background-color: #2ecc71;
-}
-
-/* Tabla y Botones del Admin */
-table {
+    background-color: #10b981;
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 8px; /* Espaciado entre filas */
-    margin-top: 10px;
+    padding: 14px;
+    margin-top: 15px;
 }
 
-th {
-    padding: 12px;
-    text-align: left;
-    color: #888;
-    font-size: 0.85em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-td {
-    padding: 15px 12px;
-    background-color: #fff;
-    border-top: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-/* Primer y último TD de cada fila para redondear las filas de la tabla */
-td:first-child { border-left: 1px solid #f0f0f0; border-radius: 12px 0 0 12px; }
-td:last-child { border-right: 1px solid #f0f0f0; border-radius: 0 12px 12px 0; }
-
-.btn-edit, .btn-delete {
-    width: 90px;
-    padding: 8px 0;
-    margin: 2px;
-    font-size: 13px;
-    display: inline-block;
-}
-
+/* BOTONES DE LA TABLA */
 .btn-edit {
-    background-color: #3498db;
-}
-
-.btn-edit:hover {
-    background-color: #5dade2;
+    background-color: #3b82f6;
+    margin-right: 8px;
+    min-width: 90px;
 }
 
 .btn-delete {
-    background-color: #e74c3c;
+    background-color: #ef4444;
+    min-width: 90px;
 }
 
-.btn-delete:hover {
-    background-color: #ec7063;
+/* TABLA MODERNA */
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-/* Responsivo */
-@media (max-width: 600px) {
-    th, td {
-        font-size: 11px;
-        padding: 8px 4px;
-    }
-    .filtros {
-        flex-direction: column;
-    }
-    button {
-        width: 100%;
-    }
+th {
+    text-align: left;
+    padding: 12px;
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+}
+
+/* Alineación de acciones */
+td:last-child {
+    display: flex;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .filtros { flex-direction: column; align-items: stretch; }
+    td:last-child { flex-direction: column; }
 }
