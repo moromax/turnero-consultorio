@@ -6,7 +6,7 @@
     <title>Agenda Nutricionista</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Mantenemos tu estética de tarjeta centrada */
+        /* Estética bloqueada: Tarjeta centrada */
         body {
             display: flex;
             justify-content: center;
@@ -22,7 +22,7 @@
             border-radius: 30px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             width: 100%;
-            max-width: 500px;
+            max-width: 450px;
         }
         .form-group { margin-bottom: 20px; text-align: left; }
         label { display: block; font-weight: 600; margin-bottom: 10px; font-size: 14px; }
@@ -30,7 +30,7 @@
             width: 100%; padding: 12px; border: 1px solid #dee2e6;
             border-radius: 10px; box-sizing: border-box; font-size: 15px;
         }
-        /* Grid de horarios con los colores que pediste */
+        /* Grid de disponibilidad */
         .grid-horarios {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
@@ -38,15 +38,11 @@
             margin: 15px 0;
         }
         .slot-hora {
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid #dee2e6;
-            font-weight: 500;
+            padding: 10px; border-radius: 10px; text-align: center;
+            cursor: pointer; border: 1px solid #dee2e6; font-weight: 500;
         }
-        .disponible { background-color: #e6f4ea; color: #1e8e3e; border-color: #1e8e3e; } /* Verde */
-        .ocupado { background-color: #fce8e6; color: #d93025; border-color: #d93025; cursor: not-allowed; } /* Rojo */
+        .disponible { background-color: #e6f4ea; color: #1e8e3e; border-color: #1e8e3e; }
+        .ocupado { background-color: #fce8e6; color: #d93025; border-color: #d93025; cursor: not-allowed; }
         .seleccionado { background-color: #1a73e8 !important; color: white !important; }
 
         .btn-container { display: flex; justify-content: center; margin-top: 30px; }
@@ -59,10 +55,16 @@
 </head>
 <body>
     <div class="card">
-        <h1 style="font-size: 22px; margin-bottom: 25px;">Nueva Reserva de Turno</h1>
+        <h1 style="font-size: 22px; margin-bottom: 25px; text-align: center;">Nueva Reserva de Turno</h1>
         
         <div class="form-group">
-            <label>1. Tipo de Turno (Define duración):</label>
+            <label>1. Datos del Paciente:</label>
+            <input type="text" id="nombre" placeholder="Nombre completo" style="margin-bottom: 10px;">
+            <input type="text" id="dni" placeholder="DNI del paciente">
+        </div>
+
+        <div class="form-group">
+            <label>2. Tipo de Turno:</label>
             <select id="tipo" onchange="cargarDisponibilidad()">
                 <option value="Control">Control (20 min)</option>
                 <option value="Primera vez">Primera vez (40 min)</option>
@@ -70,17 +72,11 @@
         </div>
 
         <div class="form-group">
-            <label>2. Fecha de Consulta:</label>
+            <label>3. Fecha de Consulta:</label>
             <input type="date" id="fecha" onchange="cargarDisponibilidad()">
         </div>
 
-        <div class="form-group">
-            <label>3. Datos del Paciente:</label>
-            <input type="text" id="nombre" placeholder="Nombre completo" style="margin-bottom: 10px;">
-            <input type="text" id="dni" placeholder="DNI del paciente">
-        </div>
-
-        <label>4. Estado de la Agenda para este día:</label>
+        <label>4. Disponibilidad de la Agenda:</label>
         <div id="gridHorarios" class="grid-horarios"></div>
         
         <input type="hidden" id="horaSeleccionada">
@@ -100,7 +96,7 @@
             const grid = document.getElementById('gridHorarios');
             if (!fecha) return;
 
-            grid.innerHTML = 'Verificando agenda...';
+            grid.innerHTML = 'Verificando...';
             
             const { data: ocupados } = await _supabase
                 .from('turnos')
@@ -108,23 +104,21 @@
                 .eq('fecha', fecha);
             
             grid.innerHTML = '';
-            const duracionNecesaria = (tipo === 'Primera vez') ? 40 : 20;
+            const duracionMin = (tipo === 'Primera vez') ? 40 : 20;
 
             for (let h = 15; h < 20; h++) {
                 for (let m = 0; m < 60; m += 20) {
                     const horaActual = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
                     
-                    // Calculamos el fin potencial para ver si choca con algo
+                    // Cálculo de fin para validar si cabe el turno
                     const [hh, mm] = horaActual.split(':').map(Number);
-                    const dFinPotencial = new Date(0, 0, 0, hh, mm + duracionNecesaria);
-                    const horaFinPotencial = `${dFinPotencial.getHours().toString().padStart(2, '0')}:${dFinPotencial.getMinutes().toString().padStart(2, '0')}`;
+                    const dFin = new Date(0, 0, 0, hh, mm + duracionMin);
+                    const horaFinPotencial = `${dFin.getHours().toString().padStart(2, '0')}:${dFin.getMinutes().toString().padStart(2, '0')}`;
 
-                    // Lógica exhaustiva: ¿Este slot interfiere con algún turno existente?
+                    // Lógica de colisión mejorada para permitir transiciones
                     const estaOcupado = ocupados?.some(t => {
                         const tIni = t.hora_inicio.substring(0, 5);
                         const tFin = t.hora_fin.substring(0, 5);
-                        // El slot está ocupado si el nuevo turno empezaría ANTES de que termine uno existente 
-                        // O si terminaría DESPUÉS de que empiece uno existente.
                         return (horaActual < tFin && horaFinPotencial > tIni);
                     });
 
@@ -151,7 +145,7 @@
             const hIni = document.getElementById('horaSeleccionada').value;
             const tipo = document.getElementById('tipo').value;
 
-            if (!nombre || !dni || !fecha || !hIni) return alert("Faltan datos para la reserva.");
+            if (!nombre || !dni || !fecha || !hIni) return alert("Faltan datos.");
 
             const [h, m] = hIni.split(':').map(Number);
             const duracion = (tipo === 'Primera vez') ? 40 : 20;
@@ -162,13 +156,8 @@
                 nombre, dni, fecha, hora_inicio: hIni, hora_fin: hFin, tipo_turno: tipo
             }]);
 
-            if (error) {
-                if (error.message.includes('turnos_dni_check')) alert("DNI inválido.");
-                else alert("Error: " + error.message);
-            } else {
-                alert("✅ Turno agendado correctamente.");
-                location.reload();
-            }
+            if (error) alert("Error: " + error.message);
+            else { alert("✅ Turno agendado"); location.reload(); }
         }
     </script>
 </body>
