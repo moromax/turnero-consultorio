@@ -15,7 +15,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     width: 100%;
-    max-width: 800px;
+    max-width: 900px;
 }
 
 h1 {
@@ -24,11 +24,17 @@ h1 {
     margin-bottom: 25px;
 }
 
-/* Formularios */
-form {
+/* Formularios y Filtros */
+form, .filtros {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+.filtros {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 label {
@@ -41,36 +47,27 @@ input, select, button {
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    font-size: 16px; /* Evita zoom automático en iPhone */
+    font-size: 16px;
 }
 
 button {
-    background-color: #27ae60;
-    color: white;
-    border: none;
     cursor: pointer;
     font-weight: bold;
     transition: background 0.3s;
+    border: none;
+    color: white;
 }
 
-button:hover {
+/* Botones de la Página Principal */
+#turnoForm button {
+    background-color: #27ae60;
+}
+
+#turnoForm button:hover {
     background-color: #219150;
 }
 
-/* Panel Admin y Filtros */
-.filtros {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.filtros input {
-    flex: 1;
-    min-width: 150px;
-}
-
-/* Tablas */
+/* Tabla y Botones del Admin */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -88,24 +85,39 @@ th {
     color: #666;
 }
 
+/* Estilo para emparejar botones de acción */
+.btn-edit, .btn-delete {
+    width: 85px;
+    padding: 8px 0;
+    margin: 2px;
+    font-size: 14px;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-edit {
+    background-color: #3498db;
+}
+
+.btn-edit:hover {
+    background-color: #2980b9;
+}
+
 .btn-delete {
     background-color: #e74c3c;
-    padding: 6px 12px;
-    font-size: 12px;
 }
 
 .btn-delete:hover {
     background-color: #c0392b;
 }
 
-/* Adaptabilidad para Celulares */
+/* Responsivo */
 @media (max-width: 600px) {
     th, td {
-        font-size: 13px;
-        padding: 8px;
+        font-size: 12px;
+        padding: 6px;
     }
-    
-    .container, .container-admin {
-        padding: 15px;
+    .filtros {
+        flex-direction: column;
     }
 }
