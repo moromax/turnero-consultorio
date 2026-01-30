@@ -1,9 +1,11 @@
-// Configuración de Supabase
-const _supabase = supabase.createClient('TU_URL', 'TU_KEY');
+// CONFIGURACIÓN (Asegúrate de poner tus datos aquí)
+const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const tabla = document.getElementById('tablaTurnos');
 
-// Función auxiliar para sumar minutos a una hora HH:MM
+// Sumar minutos a una hora HH:MM
 function calcularFin(horaInicio, minutos) {
     let [hrs, mins] = horaInicio.split(':').map(Number);
     let date = new Date();
@@ -11,18 +13,18 @@ function calcularFin(horaInicio, minutos) {
     return date.toTimeString().substring(0, 5);
 }
 
-// NUEVA: Función para verificar si hay choque de horarios
+// Verifica si el nuevo horario choca con uno existente
 async function haySolapamiento(id, fecha, inicio, fin) {
     const { data, error } = await _supabase
         .from('turnos')
         .select('id, hora_inicio, hora_fin')
         .eq('fecha', fecha)
-        .neq('id', id); // Ignorar el turno que estamos editando actualmente
+        .neq('id', id);
 
     if (error) return false;
 
-    // Lógica de solapamiento: (InicioA < FinB) y (FinA > InicioB)
     return data.some(turno => {
+        // Choque: (InicioNuevo < FinExistente) && (FinNuevo > InicioExistente)
         return (inicio < turno.hora_fin && fin > turno.hora_inicio);
     });
 }
@@ -37,11 +39,15 @@ async function obtenerTurnos() {
     if (filtroDni) consulta = consulta.ilike('dni', `%${filtroDni}%`);
 
     const { data, error } = await consulta;
-    if (error) console.error(error);
-    else renderizarTabla(data);
+    if (error) {
+        console.error("Error cargando datos:", error);
+    } else {
+        renderizarTabla(data);
+    }
 }
 
 function renderizarTabla(turnos) {
+    if (!tabla) return;
     tabla.innerHTML = '';
     turnos.forEach(turno => {
         const fila = document.createElement('tr');
@@ -74,7 +80,7 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
     const solapa = await haySolapamiento(id, nuevaFecha, nuevaHora, nuevaHoraFin);
     
     if (solapa) {
-        alert("⚠️ ¡Atención! Este horario se solapa con otro turno ya agendado. Por favor elige otra hora.");
+        alert("⚠️ ¡Error! El horario seleccionado se solapa con otro turno agendado.");
         return;
     }
 
@@ -90,7 +96,7 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
         })
         .eq('id', id);
 
-    if (error) alert("Error al actualizar: " + error.message);
+    if (error) alert("Error: " + error.message);
     else {
         alert("Turno actualizado correctamente.");
         obtenerTurnos();
@@ -98,12 +104,12 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
 }
 
 async function eliminarTurno(id) {
-    if (confirm("¿Seguro que quieres eliminar este turno?")) {
+    if (confirm("¿Eliminar este turno?")) {
         const { error } = await _supabase.from('turnos').delete().eq('id', id);
         if (error) alert(error.message);
         else obtenerTurnos();
     }
 }
 
-// Carga inicial
+// Iniciar
 obtenerTurnos();
