@@ -81,3 +81,56 @@ async function cargarHorarios() {
 // Escuchar cambios para actualizar el combo de horas
 fechaInput.addEventListener('change', cargarHorarios);
 tipoTurnoSelect.addEventListener('change', cargarHorarios);
+
+// 4. Manejar el envío del formulario
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById('nombre').value;
+    const dni = dniInput.value;
+    const tipo = tipoTurnoSelect.value;
+    const fecha = fechaInput.value;
+    const hora_inicio = horaSelect.value;
+
+    // Validación extra de DNI (solo números, 7 u 8 dígitos)
+    const dniRegex = /^[0-9]{7,8}$/;
+    if (!dniRegex.test(dni)) {
+        alert("El DNI debe tener 7 u 8 números, sin puntos ni letras.");
+        return;
+    }
+
+    if (!hora_inicio) {
+        alert("Por favor, selecciona un horario válido.");
+        return;
+    }
+
+    // Calcular hora_fin para guardar en la base de datos
+    const duracion = tipo === 'Primera vez' ? 40 : 20;
+    const hora_fin = calcularFin(hora_inicio, duracion);
+
+    // Intentar insertar en Supabase
+    const { data, error } = await _supabase
+        .from('turnos')
+        .insert([
+            { 
+                nombre, 
+                dni, 
+                tipo_turno: tipo, 
+                fecha, 
+                hora_inicio, 
+                hora_fin 
+            }
+        ]);
+
+    if (error) {
+        if (error.code === '23505') { // Código de error para duplicados (UNIQUE en SQL)
+            alert("Ya existe un turno registrado para este DNI en la fecha seleccionada.");
+        } else {
+            alert("Error al reservar: " + error.message);
+        }
+    } else {
+        alert("¡Turno reservado con éxito!");
+        form.reset();
+        horaSelect.innerHTML = '';
+    }
+});
