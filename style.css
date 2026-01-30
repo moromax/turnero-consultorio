@@ -1,21 +1,28 @@
-/* Configuración General */
+/* 1. Base y Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Inter', -apple-system, sans-serif;
     background-color: #f8fafc;
-    margin: 0;
+    color: #1e293b;
     padding: 20px;
     display: flex;
     justify-content: center;
 }
 
-.container-admin {
+/* 2. Contenedor Principal */
+.container, .container-admin {
     background: white;
     padding: 30px;
     border-radius: 20px; 
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     width: 100%;
     max-width: 1000px;
-    position: relative; /* Evita que botones se escapen */
+    margin: 0 auto; /* Centrado absoluto */
 }
 
 h1 {
@@ -25,17 +32,17 @@ h1 {
     font-weight: 800;
 }
 
-/* Contenedor de Filtros - Arreglado */
+/* 3. Filtros (Área de arriba) */
 .filtros {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     margin-bottom: 30px;
     background: #f1f5f9;
     padding: 20px;
     border-radius: 16px;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center; /* Centra los elementos */
+    justify-content: center;
 }
 
 input, select {
@@ -43,51 +50,47 @@ input, select {
     border: 1px solid #cbd5e1;
     border-radius: 10px;
     font-size: 14px;
-    min-width: 200px;
+    height: 45px;
+    min-width: 180px;
 }
 
-/* BOTONES ESTILO PÍLDORA DEFINITIVO */
+/* 4. BOTONES (Reset general) */
 button {
     cursor: pointer;
     font-weight: 600;
     border: none;
-    border-radius: 50px !important;
+    border-radius: 50px !important; /* Píldora */
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     color: white;
+    white-space: nowrap;
 }
 
-/* BOTÓN BUSCAR (AZUL VIBRANTE) */
+/* Botón Buscar (AZUL VIBRANTE) */
 .btn-buscar {
     background-color: #2563eb !important; 
-    padding: 12px 25px !important;
-    min-width: 180px !important;
-    max-width: 250px; /* Evita que se haga gigante */
+    color: white !important;
+    padding: 0 25px !important;
+    height: 45px; /* Misma altura que los inputs */
     font-size: 15px;
+    min-width: 180px;
 }
 
 .btn-buscar:hover { background-color: #1d4ed8 !important; }
 
-/* BOTONES DE LA TABLA (IGUALES) */
-.btn-edit {
-    background-color: #3b82f6 !important;
-    min-width: 90px !important;
-    padding: 8px 15px !important;
+/* 5. Tabla */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Permite scroll si la tabla es muy ancha */
 }
 
-.btn-delete {
-    background-color: #ef4444 !important;
-    min-width: 90px !important;
-    padding: 8px 15px !important;
-}
-
-/* TABLA LIMPIA */
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 600px;
 }
 
 th {
@@ -95,25 +98,41 @@ th {
     padding: 12px;
     color: #64748b;
     font-size: 13px;
+    text-transform: uppercase;
     border-bottom: 2px solid #f1f5f9;
 }
 
 td {
     padding: 15px 12px;
     border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    vertical-align: middle;
 }
 
-/* Columna de Acciones - Evita que se amontone */
-td:last-child {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-start;
+/* Botones de Acción en la tabla */
+.btn-edit {
+    background-color: #3b82f6 !important;
+    min-width: 85px;
+    height: 35px;
+    font-size: 13px;
 }
 
-/* Móvil - Solo aquí se hacen grandes los botones */
+.btn-delete {
+    background-color: #ef4444 !important;
+    min-width: 85px;
+    height: 35px;
+    font-size: 13px;
+}
+
+/* 6. Diseño para Móviles */
 @media (max-width: 768px) {
     .filtros { flex-direction: column; }
-    input, select, .btn-buscar { width: 100%; min-width: unset; }
-    td:last-child { flex-direction: column; }
-    .btn-edit, .btn-delete { width: 100% !important; }
+    input, select, .btn-buscar { width: 100%; }
+    
+    /* Botones uno arriba del otro en móvil */
+    td:last-child {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
 }
