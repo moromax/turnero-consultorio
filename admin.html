@@ -3,25 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Turnos - Nutricionista</title>
-    
+    <title>Gestión de Turnos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="container-admin">
         <h1>Gestión de Turnos</h1>
-
         <div class="filtros">
             <input type="date" id="filtroFecha" onchange="obtenerTurnos()">
             <input type="text" id="filtroDni" placeholder="Buscar DNI..." oninput="obtenerTurnos()">
-            
             <button onclick="obtenerTurnos()" class="btn-buscar">
                 <i class="fas fa-search"></i> Buscar / Refrescar
             </button>
         </div>
-
         <div class="table-container">
             <table>
                 <thead>
@@ -34,14 +29,11 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="tablaTurnos">
-                    </tbody>
+                <tbody id="tablaTurnos"></tbody>
             </table>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="admin.js"></script>
-
 </body>
 </html>
