@@ -1,8 +1,17 @@
+// Configuración de Supabase
 const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const tabla = document.getElementById('tablaTurnos');
+
+// Función para calcular fin (HH:mm) según el tipo de turno
+function calcularFin(hora, minutos) {
+    let [h, m] = hora.split(':').map(Number);
+    let date = new Date();
+    date.setHours(h, m + minutos, 0);
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
 
 async function obtenerTurnos() {
     const fecha = document.getElementById('filtroFecha').value;
@@ -28,7 +37,7 @@ function renderizarTabla(turnos) {
             <td>${turno.dni}</td>
             <td>${turno.tipo_turno}</td>
             <td>
-                <button onclick="editarTurno('${turno.id}', '${turno.nombre}', '${turno.dni}')" style="background:#3498db; margin-right:5px;">Editar</button>
+                <button onclick="editarTurnoCompleto('${turno.id}', '${turno.nombre}', '${turno.dni}', '${turno.fecha}', '${turno.hora_inicio}', '${turno.tipo_turno}')" class="btn-edit">Editar</button>
                 <button onclick="eliminarTurno('${turno.id}')" class="btn-delete">Eliminar</button>
             </td>
         `;
@@ -36,28 +45,53 @@ function renderizarTabla(turnos) {
     });
 }
 
-async function editarTurno(id, nombreActual, dniActual) {
-    const nuevoNombre = prompt("Nuevo nombre del paciente:", nombreActual);
-    const nuevoDni = prompt("Nuevo DNI:", dniActual);
+async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tipoAct) {
+    // Pedir datos paso a paso
+    const nuevoNombre = prompt("Nombre del paciente:", nombreAct) || nombreAct;
+    const nuevoDni = prompt("DNI (solo números):", dniAct) || dniAct;
+    const nuevaFecha = prompt("Fecha (AAAA-MM-DD):", fechaAct) || fechaAct;
+    
+    let nuevoTipo = prompt("Tipo (Escribe: Primera vez / Control):", tipoAct) || tipoAct;
+    // Validar que el tipo sea uno de los dos permitidos
+    if (nuevoTipo !== 'Primera vez' && nuevoTipo !== 'Control') {
+        alert("Tipo de turno inválido. Se mantendrá el original.");
+        nuevoTipo = tipoAct;
+    }
 
-    if (nuevoNombre && nuevoDni) {
-        if (!/^[0-9]{7,8}$/.test(nuevoDni)) return alert("DNI inválido.");
+    const nuevaHora = prompt("Hora de inicio (HH:MM):", horaAct.substring(0,5)) || horaAct;
 
-        const { error } = await _supabase
-            .from('turnos')
-            .update({ nombre: nuevoNombre, dni: nuevoDni })
-            .eq('id', id);
+    // Validaciones
+    if (!/^[0-9]{7,8}$/.test(nuevoDni)) return alert("DNI debe ser de 7 u 8 números.");
+    
+    const duracion = nuevoTipo === 'Primera vez' ? 40 : 20;
+    const nuevaHoraFin = calcularFin(nuevaHora, duracion);
 
-        if (error) alert("Error al actualizar");
-        else obtenerTurnos();
+    const { error } = await _supabase
+        .from('turnos')
+        .update({ 
+            nombre: nuevoNombre, 
+            dni: nuevoDni, 
+            fecha: nuevaFecha, 
+            tipo_turno: nuevoTipo,
+            hora_inicio: nuevaHora,
+            hora_fin: nuevaHoraFin
+        })
+        .eq('id', id);
+
+    if (error) {
+        alert("Error al actualizar: " + error.message);
+    } else {
+        alert("Turno actualizado correctamente.");
+        obtenerTurnos();
     }
 }
 
 async function eliminarTurno(id) {
-    if (confirm('¿Eliminar este turno?')) {
+    if (confirm('¿Estás seguro de que deseas eliminar este turno?')) {
         const { error } = await _supabase.from('turnos').delete().eq('id', id);
         if (!error) obtenerTurnos();
     }
 }
 
+// Cargar turnos al abrir la página
 obtenerTurnos();
