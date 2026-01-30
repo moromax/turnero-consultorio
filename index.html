@@ -1,112 +1,84 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva tu Turno</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container-admin">
-        <h1 style="text-align:center;">Reserva tu Turno</h1>
-        <div class="filtros" style="display: flex; flex-direction: column; background: none; padding: 0;">
-            <input type="text" id="nombre" placeholder="Nombre Completo" style="width:100%; margin-bottom:15px;">
-            <input type="text" id="dni" placeholder="DNI (solo números)" style="width:100%; margin-bottom:15px;">
-            <select id="tipo" onchange="cargarHorarios()" style="width:100%; margin-bottom:15px;">
-                <option value="Control">Control (20 min)</option>
-                <option value="Primera vez">Primera vez (40 min)</option>
-            </select>
-            <input type="date" id="fecha" onchange="cargarHorarios()" style="width:100%; margin-bottom:15px;">
+// Sustituye solo estas funciones dentro de tu index.html
 
-            <p style="font-size: 14px; margin: 10px 0; color: #5f6368;">Selecciona un horario libre:</p>
-            <div id="gridHorarios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; width: 100%;"></div>
-            <input type="hidden" id="horaSeleccionada">
+async function cargarHorarios() {
+    const fecha = document.getElementById('fecha').value;
+    const grid = document.getElementById('gridHorarios');
+    if (!fecha) return;
 
-            <button onclick="reservar()" class="btn-buscar" style="width:100%; margin-top:30px; font-size: 16px;">Confirmar Reserva</button>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const _supabase = supabase.createClient('https://uekuyjoakqnhjltqrrpj.supabase.co', 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj');
-
-        async function cargarHorarios() {
-            const fecha = document.getElementById('fecha').value;
-            const grid = document.getElementById('gridHorarios');
-            if (!fecha) return;
-
-            grid.innerHTML = 'Buscando disponibilidad...';
+    grid.innerHTML = 'Verificando...';
+    
+    // Traemos los turnos del día
+    const { data: ocupados } = await _supabase
+        .from('turnos')
+        .select('hora_inicio, hora_fin')
+        .eq('fecha', fecha);
+    
+    grid.innerHTML = '';
+    
+    for (let h = 15; h < 20; h++) {
+        for (let m = 0; m < 60; m += 20) {
+            const horaActual = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
             
-            // Traemos todos los turnos del día para comparar
-            const { data: ocupados } = await _supabase
-                .from('turnos')
-                .select('hora_inicio, hora_fin')
-                .eq('fecha', fecha);
-            
-            grid.innerHTML = '';
-            for (let h = 15; h < 20; h++) {
-                for (let m = 0; m < 60; m += 20) {
-                    const hora = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-                    
-                    // Lógica fundamental: NO mostrar si la hora cae dentro de un turno ya reservado
-                    const estaOcupado = ocupados?.some(t => {
-                        return (hora >= t.hora_inicio && hora < t.hora_fin);
-                    });
+            // LÓGICA CORREGIDA: Un horario está ocupado solo si la hora actual 
+            // es MAYOR O IGUAL al inicio Y MENOR al fin del turno existente.
+            // Esto permite que si un turno termina a las 15:40, las 15:40 esté LIBRE.
+            const estaOcupado = ocupados?.some(t => {
+                const inicio = t.hora_inicio.substring(0, 5);
+                const fin = t.hora_fin.substring(0, 5);
+                return (horaActual >= inicio && horaActual < fin);
+            });
 
-                    if (!estaOcupado) {
-                        const div = document.createElement('div');
-                        div.className = 'slot-hora';
-                        div.innerText = hora;
-                        div.onclick = () => {
-                            document.querySelectorAll('.slot-hora').forEach(s => s.classList.remove('active'));
-                            div.classList.add('active');
-                            document.getElementById('horaSeleccionada').value = hora;
-                        };
-                        grid.appendChild(div);
-                    }
-                }
+            if (!estaOcupado) {
+                const div = document.createElement('div');
+                div.className = 'slot-hora'; // Mantiene tu clase de CSS actual
+                div.innerText = horaActual;
+                div.onclick = () => {
+                    document.querySelectorAll('.slot-hora').forEach(s => s.classList.remove('active'));
+                    div.classList.add('active');
+                    document.getElementById('horaSeleccionada').value = horaActual;
+                };
+                grid.appendChild(div);
             }
         }
+    }
+}
 
-        async function reservar() {
-            const nombre = document.getElementById('nombre').value;
-            const dni = document.getElementById('dni').value;
-            const fecha = document.getElementById('fecha').value;
-            const hIni = document.getElementById('horaSeleccionada').value;
-            const tipo = document.getElementById('tipo').value;
+async function reservar() {
+    const nombre = document.getElementById('nombre').value;
+    const dni = document.getElementById('dni').value;
+    const fecha = document.getElementById('fecha').value;
+    const hIni = document.getElementById('horaSeleccionada').value;
+    const tipo = document.getElementById('tipo').value;
 
-            if (!nombre || !dni || !fecha || !hIni) return alert("Completa todos los datos.");
+    if (!nombre || !dni || !fecha || !hIni) return alert("Por favor, completa todos los campos.");
 
-            // Calculamos hora_fin para evitar el error de 15:00 a 15:00
-            const [h, m] = hIni.split(':').map(Number);
-            const duracion = tipo === 'Primera vez' ? 40 : 20;
-            const dFin = new Date(0,0,0, h, m + duracion);
-            const hFin = `${dFin.getHours().toString().padStart(2,'0')}:${dFin.getMinutes().toString().padStart(2,'0')}`;
+    // Cálculo automático de hora_fin para evitar solapamientos
+    const [h, m] = hIni.split(':').map(Number);
+    const duracion = tipo === 'Primera vez' ? 40 : 20;
+    const dFin = new Date(0,0,0, h, m + duracion);
+    const hFin = `${dFin.getHours().toString().padStart(2,'0')}:${dFin.getMinutes().toString().padStart(2,'0')}`;
 
-            // Verificación final antes de insertar para evitar que dos personas reserven a la vez
-            const { data: choque } = await _supabase
-                .from('turnos')
-                .select('id')
-                .eq('fecha', fecha)
-                .eq('hora_inicio', hIni);
+    // Verificación de último segundo antes de insertar
+    const { data: choque } = await _supabase.from('turnos')
+        .select('id')
+        .eq('fecha', fecha)
+        .eq('hora_inicio', hIni);
 
-            if (choque && choque.length > 0) {
-                alert("Ese horario se acaba de ocupar. Elige otro por favor.");
-                return cargarHorarios();
-            }
+    if (choque && choque.length > 0) {
+        alert("Este horario ya no está disponible.");
+        return cargarHorarios();
+    }
 
-            const { error } = await _supabase.from('turnos').insert([{
-                nombre, dni, fecha, hora_inicio: hIni, hora_fin: hFin, tipo_turno: tipo
-            }]);
+    const { error } = await _supabase.from('turnos').insert([{
+        nombre, dni, fecha, hora_inicio: hIni, hora_fin: hFin, tipo_turno: tipo
+    }]);
 
-            if (error) {
-                if (error.message.includes('turnos_dni_check')) alert("DNI inválido (debe tener 7 u 8 números)");
-                else alert("Error: " + error.message);
-            } else {
-                alert("✅ ¡Turno confirmado!");
-                location.reload();
-            }
-        }
-    </script>
-</body>
-</html>
+    if (error) {
+        // Traducimos el error del DNI al español
+        if (error.message.includes('turnos_dni_check')) alert("El DNI debe tener 7 u 8 números.");
+        else alert("Error: " + error.message);
+    } else {
+        alert("✅ Turno reservado correctamente.");
+        location.reload();
+    }
+}
