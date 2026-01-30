@@ -67,4 +67,3 @@ async function eliminarTurno(id) {
 }
 
 document.addEventListener('DOMContentLoaded', obtenerTurnos);
-
