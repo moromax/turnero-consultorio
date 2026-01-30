@@ -1,16 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
+/* IMPORTACIÓN DE FUENTE INTER */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-* { box-sizing: border-box; margin: 0; padding: 0; outline: none !important; }
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    outline: none !important; 
+}
 
 body {
-    font-family: 'Product Sans', sans-serif !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
     background-color: #f1f3f4;
     padding: 40px 20px;
     display: flex;
     justify-content: center;
+    -webkit-font-smoothing: antialiased;
 }
 
-.container-admin {
+/* CONTENEDOR PRINCIPAL (TARJETA BLANCA) */
+.container-admin, .card {
     background: white;
     padding: 40px;
     border-radius: 28px;
@@ -19,58 +27,172 @@ body {
     max-width: 1100px;
 }
 
-h1 { text-align: left; margin-bottom: 30px; font-weight: 700; color: #202124; font-size: 32px; }
+/* TÍTULOS */
+h1 { 
+    text-align: left; 
+    margin-bottom: 30px; 
+    font-weight: 700; 
+    color: #202124; 
+    font-size: 28px; 
+    letter-spacing: -0.5px;
+}
 
-/* Inputs Modernos para Fecha y DNI */
-.filtros {
-    display: flex; gap: 15px; margin-bottom: 40px;
-    background: #f8f9fa; padding: 25px; border-radius: 20px;
+/* FILTROS Y GRUPOS DE BÚSQUEDA */
+.header-actions, .filtros {
+    display: flex; 
+    gap: 15px; 
+    margin-bottom: 35px;
+    background: #f8f9fa; 
+    padding: 20px; 
+    border-radius: 20px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-group {
+    display: flex;
+    gap: 10px;
     align-items: center;
 }
 
-input[type="date"], input[type="text"], select {
-    padding: 10px 18px; border: 1px solid #dadce0; border-radius: 12px;
-    height: 48px; font-family: inherit; font-size: 15px;
-    transition: all 0.3s ease; background: white;
+/* INPUTS Y SELECTS MODERNOS */
+input[type="date"], 
+input[type="text"], 
+select {
+    padding: 10px 18px; 
+    border: 1px solid #dadce0; 
+    border-radius: 12px;
+    height: 48px; 
+    font-family: 'Inter', sans-serif; 
+    font-size: 15px;
+    transition: all 0.2s ease; 
+    background: white;
+    color: #3c4043;
 }
 
-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
+input:focus, select:focus { 
+    border-color: #1a73e8; 
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); 
+}
 
-/* Efecto de Inmensidad en Botones */
+/* BOTONES ESTILO PÍLDORA (V1) */
 button {
-    cursor: pointer; border: none !important; border-radius: 100px !important;
-    color: white; font-weight: 500; font-family: inherit;
-    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; 
+    border: none !important; 
+    border-radius: 100px !important; /* Efecto Píldora */
+    font-weight: 600; 
+    font-family: 'Inter', sans-serif;
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    white-space: nowrap;
 }
 
 button:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 20px rgba(26, 115, 232, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
 }
 
-.btn-buscar { background-color: #1a73e8 !important; height: 48px; padding: 0 25px !important; }
-.btn-edit { background-color: #1a73e8 !important; padding: 8px 22px !important; margin-right: 5px; }
-.btn-delete { background-color: #d93025 !important; padding: 8px 22px !important; }
+button:active {
+    transform: translateY(0);
+}
 
-/* Tabla con Separación y Línea Divisoria */
-table { width: 100%; border-collapse: collapse; }
+/* COLORES DE BOTONES ESPECÍFICOS */
+.btn-buscar, .btn-confirmar, .btn-edit { 
+    background-color: #1a73e8 !important; 
+    color: white !important;
+    height: 48px; 
+    padding: 0 25px !important; 
+}
+
+.btn-nuevo, .btn-agenda { 
+    background-color: #34a853 !important; 
+    color: white !important; /* Letras blancas para contraste sobre verde */
+    height: 48px; 
+    padding: 0 25px !important; 
+}
+
+.btn-delete { 
+    background-color: #d93025 !important; 
+    color: white !important;
+    padding: 8px 22px !important; 
+}
+
+.btn-cancelar {
+    background-color: #9aa0a6 !important;
+    color: white !important;
+    padding: 12px 25px !important;
+}
+
+/* TABLA DE TURNOS */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
 th { 
-    text-align: left; padding: 20px 15px; color: #5f6368; 
-    font-size: 13px; text-transform: uppercase; font-weight: 700;
-    border-bottom: 2px solid #f1f3f4; 
+    text-align: left; 
+    padding: 18px 15px; 
+    color: #5f6368; 
+    font-size: 12px; 
+    text-transform: uppercase; 
+    font-weight: 700;
+    border-bottom: 2px solid #f1f3f4;
+    letter-spacing: 0.5px;
 }
-td { padding: 20px 15px; border-bottom: 1px solid #f1f3f4; font-size: 15px; color: #3c4043; }
 
-/* Selector de Horarios */
+td { 
+    padding: 18px 15px; 
+    border-bottom: 1px solid #f1f3f4; 
+    font-size: 14px; 
+    color: #3c4043; 
+}
+
+tr:hover td {
+    background-color: #f8f9fa;
+}
+
+/* GRID DE HORARIOS (INDEX Y EDITAR) */
+.grid-horarios {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+}
+
 .slot-hora {
-    padding: 12px; background: white; border: 1px solid #dadce0;
-    border-radius: 14px; text-align: center; cursor: pointer;
-    transition: all 0.3s ease;
+    padding: 12px;
+    background: white;
+    border: 1px solid #dadce0;
+    border-radius: 14px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
-.slot-hora:hover { 
-    transform: translateY(-2px); border-color: #1a73e8; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+
+.slot-hora.disponible { background-color: #e6f4ea; color: #1e8e3e; border-color: #ceead6; }
+.slot-hora.ocupado { background-color: #fce8e6; color: #d93025; border-color: #f9d2ce; cursor: not-allowed; opacity: 0.7; }
+.slot-hora.seleccionado { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8; }
+
+.slot-hora:not(.ocupado):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.slot-hora.active { background: #1a73e8 !important; color: white !important; }
+
+/* CONTENEDORES DE BOTONES */
+.btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 600px) {
+    .header-actions, .filtros { flex-direction: column; align-items: stretch; }
+    .filter-group { flex-direction: column; }
+    button { width: 100%; }
+}
