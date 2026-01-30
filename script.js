@@ -1,71 +1,56 @@
 // Configuración de Supabase
 const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
-
-// Inicializamos el cliente de Supabase
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Referencias a elementos del DOM
 const form = document.getElementById('turnoForm');
 const fechaInput = document.getElementById('fecha');
 const horaSelect = document.getElementById('hora');
 const tipoTurnoSelect = document.getElementById('tipo_turno');
 const dniInput = document.getElementById('dni');
 
-// 1. Bloquear fechas anteriores a hoy
-const hoy = new Date().toISOString().split('T')[0];
-fechaInput.min = hoy;
+const hoyStr = new Date().toISOString().split('T')[0];
+fechaInput.min = hoyStr;
 
-// 2. Función para sumar minutos a una hora (HH:mm)
 function calcularFin(hora, minutos) {
     let [h, m] = hora.split(':').map(Number);
     let date = new Date();
     date.setHours(h, m + minutos, 0);
-    let horaFin = date.getHours().toString().padStart(2, '0');
-    let minFin = date.getMinutes().toString().padStart(2, '0');
-    return `${horaFin}:${minFin}`;
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-// 3. Función para cargar horarios disponibles
 async function cargarHorarios() {
     const fecha = fechaInput.value;
     const tipo = tipoTurnoSelect.value;
-    
     if (!fecha || !tipo) return;
 
-    horaSelect.innerHTML = '<option>Cargando horarios...</option>';
+    horaSelect.innerHTML = '<option>Cargando...</option>';
 
-    // Consultamos turnos existentes en la fecha seleccionada
-    const { data: turnosExistentes, error } = await _supabase
+    const { data: turnosExistentes } = await _supabase
         .from('turnos')
         .select('hora_inicio, hora_fin')
         .eq('fecha', fecha);
 
-    if (error) {
-        console.error("Error al cargar turnos:", error);
-        return;
-    }
-
-    horaSelect.innerHTML = ''; // Limpiar select
+    horaSelect.innerHTML = '';
     const duracion = tipo === 'Primera vez' ? 40 : 20;
-    
-    // Generamos opciones desde las 15:00 hasta las 20:00 cada 20 min
+
+    // Obtener hora actual para validar hoy
+    const ahora = new Date();
+    const horaActualStr = `${ahora.getHours().toString().padStart(2, '0')}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+
     for (let h = 15; h < 20; h++) {
         for (let m = 0; m < 60; m += 20) {
             let horaInicio = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
             let horaFinPotencial = calcularFin(horaInicio, duracion);
 
-            // Validar que el turno no termine después de las 20:00
             if (horaFinPotencial > "20:00") continue;
 
-            // Verificar si el rango choca con algún turno existente
-            const ocupado = turnosExistentes.some(t => {
-                // IMPORTANTE: Cortamos a 5 caracteres (HH:mm) para ignorar los segundos de la DB
+            // VALIDACIÓN NUEVA: Si es hoy, no mostrar horas pasadas
+            if (fecha === hoyStr && horaInicio <= horaActualStr) continue;
+
+            const ocupado = (turnosExistentes || []).some(t => {
                 const tInicio = t.hora_inicio.substring(0, 5);
                 const tFin = t.hora_fin.substring(0, 5);
-                
-                // Solo choca si el nuevo rango se solapa internamente. 
-                // Si horaInicio == tFin, NO choca.
                 return (horaInicio < tFin && horaFinPotencial > tInicio);
             });
 
@@ -77,64 +62,30 @@ async function cargarHorarios() {
             }
         }
     }
-
-    if (horaSelect.innerHTML === '') {
-        horaSelect.innerHTML = '<option value="">No hay turnos disponibles</option>';
-    }
 }
 
-// Escuchar cambios para actualizar el combo de horas
 fechaInput.addEventListener('change', cargarHorarios);
 tipoTurnoSelect.addEventListener('change', cargarHorarios);
 
-// 4. Manejar el envío del formulario
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const nombre = document.getElementById('nombre').value;
     const dni = dniInput.value;
     const tipo = tipoTurnoSelect.value;
     const fecha = fechaInput.value;
     const hora_inicio = horaSelect.value;
 
-    // Validación extra de DNI (solo números, 7 u 8 dígitos)
-    const dniRegex = /^[0-9]{7,8}$/;
-    if (!dniRegex.test(dni)) {
-        alert("El DNI debe tener 7 u 8 números, sin puntos ni letras.");
-        return;
-    }
+    if (!/^[0-9]{7,8}$/.test(dni)) return alert("DNI inválido.");
+    if (!hora_inicio) return alert("Selecciona un horario.");
 
-    if (!hora_inicio || hora_inicio === "") {
-        alert("Por favor, selecciona un horario válido.");
-        return;
-    }
+    const hora_fin = calcularFin(hora_inicio, tipo === 'Primera vez' ? 40 : 20);
 
-    // Calcular hora_fin para guardar en la base de datos
-    const duracion = tipo === 'Primera vez' ? 40 : 20;
-    const hora_fin = calcularFin(hora_inicio, duracion);
-
-    // Intentar insertar en Supabase
-    const { data, error } = await _supabase
-        .from('turnos')
-        .insert([
-            { 
-                nombre, 
-                dni, 
-                tipo_turno: tipo, 
-                fecha, 
-                hora_inicio, 
-                hora_fin 
-            }
-        ]);
+    const { error } = await _supabase.from('turnos').insert([{ nombre, dni, tipo_turno: tipo, fecha, hora_inicio, hora_fin }]);
 
     if (error) {
-        if (error.code === '23505') { 
-            alert("Ya existe un turno registrado para este DNI en la fecha seleccionada.");
-        } else {
-            alert("Error al reservar: " + error.message);
-        }
+        alert(error.code === '23505' ? "DNI ya registrado hoy." : "Error: " + error.message);
     } else {
-        alert("¡Turno reservado con éxito!");
+        alert("¡Turno reservado!");
         form.reset();
         horaSelect.innerHTML = '';
     }
