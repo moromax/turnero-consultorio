@@ -5,22 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva Reserva</title>
     <style>
-        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f1f3f4; margin: 0; font-family: sans-serif; }
-        .card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 450px; text-align: center; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; font-weight: 600; margin-bottom: 10px; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 12px; box-sizing: border-box; font-size: 15px; }
-        
-        .grid-horarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; margin: 15px 0; }
-        .slot-hora { padding: 10px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #dee2e6; font-weight: 500; }
-        .disponible { background-color: #e6f4ea; color: #1e8e3e; border-color: #1e8e3e; }
-        .ocupado { background-color: #fce8e6; color: #d93025; border-color: #d93025; cursor: not-allowed; }
-        .seleccionado { background-color: #1a73e8 !important; color: white !important; }
+        /* 1. IMPORTACIÓN DE FUENTE (ESTILO GOOGLE SANS) */
+        @import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap');
 
-        /* Contenedor de botones inferiores */
-        .btn-container { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-        .btn-confirmar { background-color: #1a73e8; color: white; border: none; border-radius: 25px; padding: 15px 30px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .btn-agenda { background-color: #34a853; color: white; border: none; border-radius: 25px; padding: 15px 30px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        /* 2. APLICACIÓN GLOBAL PARA QUE TODO CAMBIE */
+        * {
+            box-sizing: border-box;
+            font-family: 'Lexend Deca', sans-serif !important;
+        }
+
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-color: #f1f3f4; 
+            margin: 0; 
+        }
+
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 30px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            width: 100%; 
+            max-width: 450px; 
+            text-align: center; 
+        }
+
+        h1 {
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            margin-bottom: 25px;
+            color: #202124;
+        }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-weight: 600; margin-bottom: 10px; font-size: 14px; color: #5f6368; }
+        
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #dee2e6; 
+            border-radius: 12px; 
+            font-size: 15px; 
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+        
+        .grid-horarios { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); 
+            gap: 10px; 
+            margin: 15px 0; 
+        }
+
+        .slot-hora { 
+            padding: 10px; 
+            border-radius: 12px; 
+            text-align: center; 
+            cursor: pointer; 
+            border: 1px solid #dee2e6; 
+            font-weight: 500; 
+            transition: all 0.2s;
+        }
+
+        .disponible { background-color: #e6f4ea; color: #1e8e3e; border-color: #ceead6; }
+        .ocupado { background-color: #fce8e6; color: #d93025; border-color: #f9d2ce; cursor: not-allowed; }
+        .seleccionado { background-color: #1a73e8 !important; color: white !important; border-color: #1a73e8 !important; }
+
+        /* CONTENEDOR DE BOTONES Y ESTILO PÍLDORA */
+        .btn-container { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-top: 30px; 
+        }
+
+        .btn-confirmar { 
+            background-color: #1a73e8; 
+            color: white; 
+            border: none; 
+            border-radius: 100px; /* Píldora */
+            padding: 15px 30px; 
+            font-size: 15px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-agenda { 
+            background-color: #34a853; 
+            color: white; 
+            border: none; 
+            border-radius: 100px; /* Píldora */
+            padding: 15px 30px; 
+            font-size: 15px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-confirmar:hover, .btn-agenda:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
