@@ -7,7 +7,7 @@ async function obtenerTurnos() {
     const filtroDni = document.getElementById('filtroDni').value;
     const tabla = document.getElementById('tablaTurnos');
 
-    // ORDEN CRONOLÓGICO: Primero fecha, luego hora de inicio
+    // ORDEN CORRECTO: Por fecha y luego por hora
     let consulta = _supabase
         .from('turnos')
         .select('*')
@@ -20,7 +20,7 @@ async function obtenerTurnos() {
     const { data, error } = await consulta;
     
     if (error) {
-        console.error("Error cargando turnos:", error.message);
+        console.error("Error:", error.message);
         return;
     }
 
@@ -39,6 +39,7 @@ async function obtenerTurnos() {
             <td>${turno.dni}</td>
             <td>${turno.tipo_turno}</td>
             <td>
+                <button onclick="editarTurno('${turno.id}', '${turno.nombre}', '${turno.dni}')" class="btn-edit">Editar</button>
                 <button onclick="eliminarTurno('${turno.id}')" class="btn-delete">Eliminar</button>
             </td>
         `;
@@ -46,11 +47,22 @@ async function obtenerTurnos() {
     });
 }
 
+async function editarTurno(id, nombreAct, dniAct) {
+    const nuevoNombre = prompt("Nuevo nombre:", nombreAct) || nombreAct;
+    const nuevoDni = prompt("Nuevo DNI:", dniAct) || dniAct;
+    
+    const { error } = await _supabase.from('turnos')
+        .update({ nombre: nuevoNombre, dni: nuevoDni })
+        .eq('id', id);
+
+    if (error) alert(error.message);
+    else obtenerTurnos();
+}
+
 async function eliminarTurno(id) {
-    if (confirm("¿Estás seguro de eliminar este turno?")) {
-        const { error } = await _supabase.from('turnos').delete().eq('id', id);
-        if (error) alert(error.message);
-        else obtenerTurnos();
+    if (confirm("¿Eliminar turno?")) {
+        await _supabase.from('turnos').delete().eq('id', id);
+        obtenerTurnos();
     }
 }
 
