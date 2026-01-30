@@ -3,43 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control - Turnos</title>
+    <title>Gestión de Turnos - Nutricionista</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <button onclick="obtenerTurnos()" class="btn-buscar">
-    <i class="fas fa-search"></i> Buscar / Refrescar
-</button>
-</button>
 </head>
 <body>
+
     <div class="container-admin">
         <h1>Gestión de Turnos</h1>
-        
+
         <div class="filtros">
-            <input type="date" id="filtroFecha" placeholder="Filtrar por fecha">
-            <input type="text" id="filtroDni" placeholder="Buscar DNI...">
-            <button onclick="obtenerTurnos()">Buscar / Refrescar</button>
+            <input type="date" id="filtroFecha" onchange="obtenerTurnos()">
+            <input type="text" id="filtroDni" placeholder="Buscar DNI..." oninput="obtenerTurnos()">
+            
+            <button onclick="obtenerTurnos()" class="btn-buscar">
+                <i class="fas fa-search"></i> Buscar / Refrescar
+            </button>
         </div>
 
-        <hr>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Paciente</th>
-                    <th>DNI</th>
-                    <th>Tipo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tablaTurnos">
-                </tbody>
-        </table>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Paciente</th>
+                        <th>DNI</th>
+                        <th>Tipo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaTurnos">
+                    </tbody>
+            </table>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="admin.js"></script>
+
 </body>
 </html>
