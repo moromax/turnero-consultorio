@@ -1,4 +1,7 @@
-/* 1. RESET Y FUENTE */
+/* 1. IMPORTACIÓN DE FUENTE */
+@import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
+
+/* 2. RESET Y FUENTE GLOBAL */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,8 +9,7 @@
 }
 
 body {
-    /* Aplicando la estética de Google Sans */
-    font-family: 'Product Sans', 'Google Sans', sans-serif !important;
+    font-family: 'Product Sans', sans-serif !important;
     background-color: #f1f3f4;
     color: #3c4043;
     padding: 20px;
@@ -21,7 +23,7 @@ body {
     border-radius: 28px;
     box-shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
     width: 100%;
-    max-width: 1050px;
+    max-width: 1100px;
 }
 
 h1 {
@@ -32,7 +34,7 @@ h1 {
     color: #202124;
 }
 
-/* 2. FILTROS (Caja corregida) */
+/* 3. FILTROS */
 .filtros {
     display: flex;
     gap: 16px;
@@ -42,7 +44,7 @@ h1 {
     border-radius: 20px;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap; /* Para que en móvil se acomode solo */
+    flex-wrap: wrap;
 }
 
 input, select {
@@ -52,37 +54,52 @@ input, select {
     font-size: 15px;
     height: 48px;
     font-family: inherit;
-    transition: border-color 0.2s;
 }
 
-input:focus {
-    border-color: #1a73e8;
-    outline: none;
-}
-
-/* 3. BOTÓN BUSCAR (AZUL GOOGLE) */
-.btn-buscar {
-    background-color: #1a73e8 !important;
-    color: white !important;
-    font-weight: 500 !important;
-    padding: 0 24px !important;
-    height: 48px;
-    border-radius: 24px !important; /* Píldora */
-    font-size: 14px;
+/* 4. BOTONES (Sin bordes negros) */
+button {
     cursor: pointer;
-    border: none;
+    font-weight: 500;
+    border: none !important; /* ELIMINA EL BORDE NEGRO */
+    outline: none !important;
+    border-radius: 100px !important; /* Píldora */
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    box-shadow: none;
+    color: white;
+    font-family: inherit;
 }
 
-.btn-buscar:hover {
-    background-color: #174ea6 !important;
-    box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+button:active {
+    transform: scale(0.95);
 }
 
-/* 4. TABLA */
+.btn-buscar {
+    background-color: #1a73e8 !important;
+    padding: 0 24px !important;
+    height: 48px;
+    min-width: 200px;
+}
+
+.btn-edit {
+    background-color: #1a73e8 !important;
+    padding: 8px 20px !important;
+    min-width: 90px;
+}
+
+.btn-delete {
+    background-color: #d93025 !important;
+    padding: 8px 20px !important;
+    min-width: 90px;
+}
+
+/* 5. TABLA */
+.table-container {
+    overflow-x: auto;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -94,38 +111,23 @@ th {
     color: #70757a;
     font-size: 12px;
     text-transform: uppercase;
-    font-weight: 700;
     border-bottom: 1px solid #e8eaed;
 }
 
 td {
-    padding: 20px 16px;
+    padding: 18px 16px;
     border-bottom: 1px solid #e8eaed;
     font-size: 14px;
 }
 
-/* BOTONES ACCIÓN */
-.btn-edit, .btn-delete {
-    border-radius: 0px !important;
-    padding: 8px 20px !important;
-    font-weight: 500 !important;
-    font-size: 13px !important;
-    color: white !important;
-    min-width: 90px;
-    height: 36px;
-}
-
-.btn-edit { background-color: #1a73e8 !important; }
-.btn-delete { background-color: #d93025 !important; }
-
 td:last-child {
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
-/* 5. MÓVIL */
+/* 6. MÓVIL */
 @media (max-width: 768px) {
-    .filtros { flex-direction: column; align-items: stretch; }
-    .btn-buscar { width: 100%; }
+    .filtros { flex-direction: column; }
+    input, select, .btn-buscar { width: 100%; }
     td:last-child { flex-direction: column; }
 }
