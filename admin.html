@@ -3,38 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Turnos</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Panel de Administración - Nutricionista</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: sans-serif; background-color: #f1f3f4; padding: 20px; }
+        .container-admin { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { font-size: 22px; color: #202124; margin-bottom: 25px; }
+        
+        .filters { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .filters input { padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: #f8f9fa; text-align: left; padding: 15px; border-bottom: 2px solid #eee; font-size: 14px; color: #5f6368; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #202124; }
+        
+        .btn-editar { background-color: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500; margin-right: 5px; }
+        .btn-eliminar { background-color: #d93025; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-editar:hover { background-color: #1557b0; }
+        .btn-eliminar:hover { background-color: #b31412; }
+        
+        .no-results { text-align: center; padding: 40px; color: #70757a; }
+    </style>
 </head>
 <body>
     <div class="container-admin">
         <h1>Gestión de Turnos</h1>
         
-        <div class="filtros">
-            <input type="date" id="filtroFecha" onchange="obtenerTurnos()">
-            <input type="text" id="filtroDni" placeholder="Buscar DNI..." oninput="obtenerTurnos()">
-            <button onclick="obtenerTurnos()" class="btn-buscar">
-                <i class="fas fa-search"></i>    Buscar / Refrescar
-            </button>
+        <div class="filters">
+            <input type="date" id="filtroFecha" onchange="cargarTurnos()">
+            <input type="text" id="filtroDNI" placeholder="Buscar por DNI..." onkeyup="cargarTurnos()">
+            <button onclick="window.location.href='index.html'" style="margin-left: auto; padding: 10px 20px; border-radius: 8px; border: 1px solid #dadce0; cursor: pointer; background: white;">+ Nuevo Turno</button>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th><b>Fecha</b></th>
-                    <th>Hora</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
                     <th>Paciente</th>
                     <th>DNI</th>
                     <th>Tipo</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody id="tablaTurnos">
+            <tbody id="tabla-turnos">
                 </tbody>
         </table>
+        <div id="mensaje" class="no-results" style="display: none;">No se encontraron turnos.</div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="admin.js"></script>
+    <script>
+        const _supabase = supabase.createClient('https://uekuyjoakqnhjltqrrpj.supabase.co', 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj');
+
+        async function cargarTurnos() {
+            const fecha = document.getElementById('filtroFecha').value;
+            const dni = document.getElementById('filtroDNI').value;
+            const tbody = document.getElementById('tabla-turnos');
+            const mensaje = document.getElementById('mensaje');
+
+            let query = _supabase.from('turnos').select('*').order('fecha', { ascending: true }).order('hora_inicio', { ascending: true });
+
+            if (fecha) query = query.eq('fecha', fecha);
+            if (dni) query = query.ilike('dni', `%${dni}%`);
+
+            const { data: turnos, error } = await query;
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            tbody.innerHTML = '';
+            if (turnos.length === 0) {
+                mensaje.style.display = 'block';
+            } else {
+                mensaje.style.display = 'none';
+                turnos.forEach(t => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${formatearFecha(t.fecha)}</td>
+                        <td>${t.hora_inicio.substring(0, 5)} - ${t.hora_fin.substring(0, 5)}</td>
+                        <td>${t.nombre}</td>
+                        <td>${t.dni}</td>
+                        <td>${t.tipo_turno}</td>
+                        <td>
+                            <button class="btn-editar" onclick="reprogramar('${t.id}', '${encodeURIComponent(t.nombre)}', '${t.dni}', '${t.tipo_turno}', '${t.fecha}', '${t.hora_inicio}')">Editar</button>
+                            <button class="btn-eliminar" onclick="eliminarTurno('${t.id}')">Eliminar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(fila);
+                });
+            }
+        }
+
+        function reprogramar(id, nombre, dni, tipo, fecha, hora) {
+            // Redirige a editar.html pasando todos los datos actuales del turno
+            window.location.href = `editar.html?id=${id}&nombre=${nombre}&dni=${dni}&tipo=${tipo}&fecha=${fecha}&hora=${hora}`;
+        }
+
+        async function eliminarTurno(id) {
+            if (confirm('¿Estás segura de eliminar este turno?')) {
+                const { error } = await _supabase.from('turnos').delete().eq('id', id);
+                if (error) alert("Error al eliminar");
+                else cargarTurnos();
+            }
+        }
+
+        function formatearFecha(fechaStr) {
+            const [year, month, day] = fechaStr.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        // Cargar por defecto los turnos de hoy al abrir
+        window.onload = () => {
+            // Opcional: poner fecha de hoy en el input
+            // document.getElementById('filtroFecha').value = new Date().toISOString().split('T')[0];
+            cargarTurnos();
+        };
+    </script>
 </body>
 </html>
