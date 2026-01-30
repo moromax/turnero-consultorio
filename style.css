@@ -1,7 +1,7 @@
-/* 1. IMPORTACIÓN DE FUENTE (Roboto Flex) */
+/* 1. IMPORTACIÓN DE FUENTE */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap');
 
-/* 2. RESET TOTAL */
+/* 2. RESET Y FUENTE GLOBAL */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -10,27 +10,38 @@
 
 body {
     font-family: 'Roboto Flex', sans-serif !important;
-    background-color: #f0f4f8;
+    background-color: #f1f5f9;
     color: #1e293b;
     padding: 20px;
     display: flex;
     justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
+/* 3. CONTENEDOR PRINCIPAL */
 .container-admin {
     background: white;
-    padding: 35px;
+    padding: 40px;
     border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
     width: 100%;
-    max-width: 1050px;
-    position: relative;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
 }
 
-/* 3. FILTROS: ESTRUCTURA RÍGIDA (Soluciona el botón fugitivo) */
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 800;
+    font-size: 28px;
+    color: #0f172a;
+}
+
+/* 4. FILTROS (La caja gris donde están los inputs) */
 .filtros {
-    display: grid; /* Cambiamos a Grid para control total */
-    grid-template-columns: 1fr 1fr auto; /* Dos inputs y el botón al final */
+    display: flex; /* Alineación en línea */
     gap: 15px;
     margin-bottom: 35px;
     background: #f8fafc;
@@ -38,43 +49,48 @@ body {
     border-radius: 20px;
     border: 1px solid #e2e8f0;
     align-items: center;
+    justify-content: center; /* Centra todo el bloque */
+    width: 100%;
 }
 
 input, select {
-    width: 100%;
     padding: 12px 16px;
     border: 1px solid #cbd5e1;
     border-radius: 12px;
     font-size: 15px;
-    height: 48px;
+    height: 50px;
+    min-width: 200px;
     font-family: inherit;
+    background-color: white;
 }
 
-/* 4. BOTÓN BUSCAR (AZUL GOOGLE) */
+/* 5. EL BOTÓN DE BUSCAR (AZUL GOOGLE) */
 .btn-buscar {
-    background-color: #1a73e8 !important; /* Azul oficial de Google */
+    background-color: #1a73e8 !important; /* Azul Google */
     color: white !important;
     font-weight: 700 !important;
     padding: 0 30px !important;
-    height: 48px;
+    height: 50px;
     border-radius: 100px !important;
     font-size: 15px;
     cursor: pointer;
     border: none;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 10px;
-    min-width: 200px;
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+    box-shadow: 0 4px 10px rgba(26, 115, 232, 0.2);
 }
 
 .btn-buscar:hover {
     background-color: #1557b0 !important;
+    transform: translateY(-1px);
 }
 
-.btn-buscar i { font-size: 16px; }
+/* 6. TABLA Y ACCIONES */
+.table-container {
+    overflow-x: auto;
+}
 
-/* 5. TABLA Y BOTONES DE ACCIÓN */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -84,14 +100,14 @@ th {
     text-align: left;
     padding: 15px;
     color: #64748b;
-    font-size: 12px;
+    font-size: 13px;
     text-transform: uppercase;
     font-weight: 800;
     border-bottom: 2px solid #f1f5f9;
 }
 
 td {
-    padding: 18px 15px;
+    padding: 20px 15px;
     border-bottom: 1px solid #f1f5f9;
     font-size: 15px;
 }
@@ -102,9 +118,7 @@ td {
     font-weight: 600 !important;
     font-size: 13px !important;
     color: white !important;
-    border: none;
-    cursor: pointer;
-    min-width: 90px;
+    min-width: 95px;
 }
 
 .btn-edit { background-color: #3b82f6 !important; }
@@ -115,10 +129,13 @@ td:last-child {
     gap: 10px;
 }
 
-/* 6. RESPONSIVO (Móvil) */
+/* 7. MÓVIL */
 @media (max-width: 768px) {
     .filtros {
-        grid-template-columns: 1fr; /* Una sola columna en móvil */
+        flex-direction: column;
+        align-items: stretch;
     }
-    .btn-buscar { width: 100%; }
+    input, select, .btn-buscar {
+        width: 100%;
+    }
 }
