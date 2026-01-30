@@ -7,9 +7,7 @@ async function obtenerTurnos() {
     const filtroDni = document.getElementById('filtroDni').value;
     const tabla = document.getElementById('tablaTurnos');
 
-    let consulta = _supabase
-        .from('turnos')
-        .select('*')
+    let consulta = _supabase.from('turnos').select('*')
         .order('fecha', { ascending: true })
         .order('hora_inicio', { ascending: true });
 
@@ -17,17 +15,17 @@ async function obtenerTurnos() {
     if (filtroDni) consulta = consulta.ilike('dni', `%${filtroDni}%`);
 
     const { data, error } = await consulta;
-    
-    if (error) {
-        console.error("Error:", error.message);
-        return;
-    }
+    if (error) return;
 
     tabla.innerHTML = '';
     data.forEach(turno => {
+        // Formatear fecha de AAAA-MM-DD a DD-MM-AAAA
+        const [anio, mes, dia] = turno.fecha.split('-');
+        const fechaMostrar = `${dia}-${mes}-${anio}`;
+
         const fila = document.createElement('tr');
         fila.innerHTML = `
-            <td>${turno.fecha}</td>
+            <td>${fechaMostrar}</td>
             <td style="font-weight:500;">${turno.hora_inicio.substring(0,5)} - ${turno.hora_fin.substring(0,5)}</td>
             <td>${turno.nombre}</td>
             <td>${turno.dni}</td>
@@ -41,18 +39,16 @@ async function obtenerTurnos() {
     });
 }
 
-async function eliminarTurno(id) {
-    if (confirm("¿Estás seguro de eliminar este turno?")) {
-        await _supabase.from('turnos').delete().eq('id', id);
-        obtenerTurnos();
-    }
+async function editarTurno(id, nombre, dni) {
+    const nNombre = prompt("Nombre:", nombre) || nombre;
+    const nDni = prompt("DNI:", dni) || dni;
+    await _supabase.from('turnos').update({ nombre: nNombre, dni: nDni }).eq('id', id);
+    obtenerTurnos();
 }
 
-async function editarTurno(id, nombre, dni) {
-    const nuevoNombre = prompt("Nombre del paciente:", nombre);
-    const nuevoDni = prompt("DNI del paciente:", dni);
-    if (nuevoNombre && nuevoDni) {
-        await _supabase.from('turnos').update({ nombre: nuevoNombre, dni: nuevoDni }).eq('id', id);
+async function eliminarTurno(id) {
+    if (confirm("¿Eliminar este turno?")) {
+        await _supabase.from('turnos').delete().eq('id', id);
         obtenerTurnos();
     }
 }
