@@ -2,31 +2,17 @@ const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function calcularFin(horaInicio, minutos) {
-    let [hrs, mins] = horaInicio.split(':').map(Number);
-    let date = new Date();
-    date.setHours(hrs, mins + minutos);
-    return date.toTimeString().substring(0, 5);
-}
-
-// Verifica si el horario choca con otro existente (excluyendo el actual)
-async function haySolapamiento(id, fecha, inicio, fin) {
-    const { data, error } = await _supabase
-        .from('turnos')
-        .select('id, hora_inicio, hora_fin')
-        .eq('fecha', fecha)
-        .neq('id', id);
-
-    if (error) return false;
-    return data.some(turno => (inicio < turno.hora_fin && fin > turno.hora_inicio));
-}
-
 async function obtenerTurnos() {
     const filtroFecha = document.getElementById('filtroFecha').value;
     const filtroDni = document.getElementById('filtroDni').value;
     const tabla = document.getElementById('tablaTurnos');
 
-    let consulta = _supabase.from('turnos').select('*').order('hora_inicio', { ascending: true });
+    // ORDEN CRONOLÓGICO: Primero fecha, luego hora de inicio
+    let consulta = _supabase
+        .from('turnos')
+        .select('*')
+        .order('fecha', { ascending: true })
+        .order('hora_inicio', { ascending: true });
 
     if (filtroFecha) consulta = consulta.eq('fecha', filtroFecha);
     if (filtroDni) consulta = consulta.ilike('dni', `%${filtroDni}%`);
@@ -53,39 +39,11 @@ async function obtenerTurnos() {
             <td>${turno.dni}</td>
             <td>${turno.tipo_turno}</td>
             <td>
-                <button onclick="editarTurnoCompleto('${turno.id}', '${turno.nombre}', '${turno.dni}', '${turno.fecha}', '${turno.hora_inicio}', '${turno.tipo_turno}')" class="btn-edit">Editar</button>
                 <button onclick="eliminarTurno('${turno.id}')" class="btn-delete">Eliminar</button>
             </td>
         `;
         tabla.appendChild(fila);
     });
-}
-
-async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tipoAct) {
-    const nuevoNombre = prompt("Nombre:", nombreAct) || nombreAct;
-    const nuevoDni = prompt("DNI:", dniAct) || dniAct;
-    const nuevaFecha = prompt("Fecha (AAAA-MM-DD):", fechaAct) || fechaAct;
-    const nuevoTipo = prompt("Tipo (Primera vez / Control):", tipoAct) || tipoAct;
-    const nuevaHora = prompt("Hora inicio (HH:MM):", horaAct.substring(0,5)) || horaAct;
-
-    const duracion = nuevoTipo === 'Primera vez' ? 40 : 20;
-    const nuevaHoraFin = calcularFin(nuevaHora, duracion);
-
-    if (await haySolapamiento(id, nuevaFecha, nuevaHora, nuevaHoraFin)) {
-        alert("⚠️ Error: El nuevo horario se solapa con otro turno agendado.");
-        return;
-    }
-
-    const { error } = await _supabase.from('turnos').update({ 
-        nombre: nuevoNombre, dni: nuevoDni, fecha: nuevaFecha, 
-        tipo_turno: nuevoTipo, hora_inicio: nuevaHora, hora_fin: nuevaHoraFin
-    }).eq('id', id);
-
-    if (error) alert("Error al actualizar: " + error.message);
-    else {
-        alert("✅ Turno actualizado.");
-        obtenerTurnos();
-    }
 }
 
 async function eliminarTurno(id) {
