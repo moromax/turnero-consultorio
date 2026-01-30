@@ -1,10 +1,10 @@
 // Credenciales extraídas de tus capturas
 const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj'; // Asegúrate de copiarla completa desde Supabase
+const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj'; // Asegúrate de que esté completa
 
+// Inicialización segura
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Función para sumar minutos a una hora HH:MM
 function calcularFin(horaInicio, minutos) {
     let [hrs, mins] = horaInicio.split(':').map(Number);
     let date = new Date();
@@ -12,7 +12,6 @@ function calcularFin(horaInicio, minutos) {
     return date.toTimeString().substring(0, 5);
 }
 
-// Verifica solapamiento de horarios
 async function haySolapamiento(id, fecha, inicio, fin) {
     const { data, error } = await _supabase
         .from('turnos')
@@ -21,15 +20,13 @@ async function haySolapamiento(id, fecha, inicio, fin) {
         .neq('id', id);
 
     if (error) return false;
-
-    return data.some(turno => {
-        return (inicio < turno.hora_fin && fin > turno.hora_inicio);
-    });
+    return data.some(turno => (inicio < turno.hora_fin && fin > turno.hora_inicio));
 }
 
 async function obtenerTurnos() {
     const filtroFecha = document.getElementById('filtroFecha').value;
     const filtroDni = document.getElementById('filtroDni').value;
+    const tabla = document.getElementById('tablaTurnos');
 
     let consulta = _supabase.from('turnos').select('*').order('hora_inicio', { ascending: true });
 
@@ -39,23 +36,17 @@ async function obtenerTurnos() {
     const { data, error } = await consulta;
     
     if (error) {
-        console.error("Error de Supabase:", error.message);
+        console.error("Error:", error.message);
         return;
     }
-    renderizarTabla(data);
-}
 
-function renderizarTabla(turnos) {
-    const tabla = document.getElementById('tablaTurnos');
-    if (!tabla) return;
     tabla.innerHTML = '';
-    
-    if (turnos.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No hay turnos agendados.</td></tr>';
+    if (data.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No hay turnos.</td></tr>';
         return;
     }
 
-    turnos.forEach(turno => {
+    data.forEach(turno => {
         const fila = document.createElement('tr');
         fila.innerHTML = `
             <td>${turno.fecha}</td>
@@ -82,39 +73,25 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
     const duracion = nuevoTipo === 'Primera vez' ? 40 : 20;
     const nuevaHoraFin = calcularFin(nuevaHora, duracion);
 
-    const solapa = await haySolapamiento(id, nuevaFecha, nuevaHora, nuevaHoraFin);
-    
-    if (solapa) {
-        alert("⚠️ Error: El horario se solapa con otro turno existente.");
+    if (await haySolapamiento(id, nuevaFecha, nuevaHora, nuevaHoraFin)) {
+        alert("⚠️ Error: El horario se solapa con otro turno.");
         return;
     }
 
-    const { error } = await _supabase
-        .from('turnos')
-        .update({ 
-            nombre: nuevoNombre, 
-            dni: nuevoDni, 
-            fecha: nuevaFecha, 
-            tipo_turno: nuevoTipo,
-            hora_inicio: nuevaHora,
-            hora_fin: nuevaHoraFin
-        })
-        .eq('id', id);
+    const { error } = await _supabase.from('turnos').update({ 
+        nombre: nuevoNombre, dni: nuevoDni, fecha: nuevaFecha, 
+        tipo_turno: nuevoTipo, hora_inicio: nuevaHora, hora_fin: nuevaHoraFin
+    }).eq('id', id);
 
-    if (error) alert("Error: " + error.message);
-    else {
-        alert("Turno actualizado correctamente.");
+    if (error) alert(error.message);
+    else { alert("Actualizado"); obtenerTurnos(); }
+}
+
+async function eliminarTurno(id) {
+    if (confirm("¿Eliminar?")) {
+        await _supabase.from('turnos').delete().eq('id', id);
         obtenerTurnos();
     }
 }
 
-async function eliminarTurno(id) {
-    if (confirm("¿Seguro que quieres eliminar este turno?")) {
-        const { error } = await _supabase.from('turnos').delete().eq('id', id);
-        if (error) alert(error.message);
-        else obtenerTurnos();
-    }
-}
-
-// Carga automática al iniciar
 document.addEventListener('DOMContentLoaded', obtenerTurnos);
