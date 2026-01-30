@@ -1,7 +1,7 @@
 /* Configuración General */
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #f8fafc;
+    background-color: #f1f5f9;
     color: #1e293b;
     margin: 0;
     padding: 20px;
@@ -12,8 +12,8 @@ body {
 .container, .container-admin {
     background: white;
     padding: 30px;
-    border-radius: 16px; 
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 20px; 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 1000px;
 }
@@ -22,8 +22,8 @@ h1 {
     color: #0f172a;
     text-align: center;
     margin-bottom: 24px;
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
 }
 
 /* Filtros */
@@ -31,64 +31,69 @@ h1 {
     display: flex;
     gap: 12px;
     margin-bottom: 30px;
-    background: #f1f5f9;
+    background: #ffffff;
     padding: 20px;
-    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
 }
 
 input, select {
-    padding: 10px 14px;
+    padding: 10px 16px;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
-    background: white;
+    outline: none;
 }
+
+input:focus { border-color: #3b82f6; }
 
 /* BOTONES ESTILO PÍLDORA */
 button {
     cursor: pointer;
     font-weight: 600;
     border: none;
-    border-radius: 9999px !important;
+    border-radius: 50px !important;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 16px;
-    font-size: 14px;
+    gap: 8px; /* Espacio para el icono */
     color: white;
 }
 
-/* Botón Buscar / Refrescar */
-.filtros button {
-    background-color: #10b981;
+button:active { transform: scale(0.95); }
+
+/* BOTÓN BUSCAR (Ahora con color Azul Vibrante) */
+.btn-buscar {
+    background-color: #2563eb !important; /* Azul Google/Facebook */
     padding: 12px 24px;
+    min-width: 180px;
+    font-size: 15px;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
-/* Formulario Paciente */
-#turnoForm button {
-    background-color: #10b981;
-    width: 100%;
-    padding: 14px;
-    margin-top: 15px;
+.btn-buscar:hover {
+    background-color: #1d4ed8 !important;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
 }
 
 /* BOTONES DE LA TABLA */
 .btn-edit {
     background-color: #3b82f6;
-    margin-right: 8px;
+    padding: 8px 16px;
     min-width: 90px;
 }
 
 .btn-delete {
     background-color: #ef4444;
+    padding: 8px 16px;
     min-width: 90px;
 }
 
-/* TABLA MODERNA */
+/* TABLA */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -98,9 +103,9 @@ th {
     text-align: left;
     padding: 12px;
     color: #64748b;
-    font-size: 12px;
+    font-size: 13px;
     text-transform: uppercase;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid #f1f5f9;
 }
 
 td {
@@ -109,13 +114,15 @@ td {
     font-size: 14px;
 }
 
-/* Alineación de acciones */
+/* Columna de Acciones */
 td:last-child {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
+/* Móvil */
 @media (max-width: 768px) {
     .filtros { flex-direction: column; align-items: stretch; }
     td:last-child { flex-direction: column; }
+    .btn-buscar { width: 100%; }
 }
