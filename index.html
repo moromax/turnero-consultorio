@@ -1,1 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turnero Consultorio</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Reserva tu Turno</h1>
+        <form id="turnoForm">
+            <label for="nombre">Nombre Completo:</label>
+            <input type="text" id="nombre" required>
 
+            <label for="dni">DNI (solo números, 7 u 8 cifras):</label>
+            <input type="text" id="dni" required maxlength="8">
+
+            <label for="tipo_turno">Tipo de Turno:</label>
+            <select id="tipo_turno" required>
+                <option value="">Seleccione...</option>
+                <option value="Primera vez">Primera vez (40 min)</option>
+                <option value="Control">Control (20 min)</option>
+            </select>
+
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" required>
+
+            <label for="hora">Hora (15:00 a 20:00):</label>
+            <select id="hora" required>
+                </select>
+
+            <button type="submit">Reservar Turno</button>
+        </form>
+        <p id="mensaje"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
