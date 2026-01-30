@@ -3,53 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Nutricionista</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Gestión de Turnos</title>
     <style>
-        body { font-family: sans-serif; background-color: #f1f3f4; padding: 20px; }
-        .container-admin { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1 { font-size: 22px; color: #202124; margin-bottom: 25px; }
+        body { font-family: sans-serif; background-color: #f1f3f4; padding: 20px; display: flex; justify-content: center; }
+        .container-admin { width: 100%; max-width: 1000px; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { font-size: 24px; margin-bottom: 25px; }
         
-        .filters { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filters input { padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .filter-group { display: flex; gap: 10px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 20px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background-color: #f8f9fa; text-align: left; padding: 15px; border-bottom: 2px solid #eee; font-size: 14px; color: #5f6368; }
-        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #202124; }
+        input { padding: 12px; border: 1px solid #dee2e6; border-radius: 12px; font-size: 14px; }
+
+        /* Estilos de botones solicitados */
+        .btn-buscar { background-color: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .btn-nuevo { background-color: #34a853; color: black; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; border-bottom: 2px solid #eee; color: #5f6368; font-size: 13px; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
         
-        .btn-editar { background-color: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500; margin-right: 5px; }
-        .btn-eliminar { background-color: #d93025; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500; }
-        .btn-editar:hover { background-color: #1557b0; }
-        .btn-eliminar:hover { background-color: #b31412; }
-        
-        .no-results { text-align: center; padding: 40px; color: #70757a; }
+        .btn-edit { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .btn-delete { background: #d93025; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container-admin">
         <h1>Gestión de Turnos</h1>
         
-        <div class="filters">
-            <input type="date" id="filtroFecha" onchange="cargarTurnos()">
-            <input type="text" id="filtroDNI" placeholder="Buscar por DNI..." onkeyup="cargarTurnos()">
-            <button onclick="window.location.href='index.html'" style="margin-left: auto; padding: 10px 20px; border-radius: 8px; border: 1px solid #dadce0; cursor: pointer; background: white;">+ Nuevo Turno</button>
+        <div class="header-actions">
+            <div class="filter-group">
+                <input type="date" id="filtroFecha">
+                <input type="text" id="filtroDNI" placeholder="Buscar por DNI...">
+                <button class="btn-buscar" onclick="cargarTurnos()">
+                    <span>🔍</span> Buscar / Actualizar
+                </button>
+            </div>
+
+            <button class="btn-nuevo" onclick="window.location.href='index.html'">
+                <span>+</span> Nuevo Turno
+            </button>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Fecha</th>
-                    <th>Horario</th>
-                    <th>Paciente</th>
+                    <th>FECHA</th>
+                    <th>HORARIO</th>
+                    <th>PACIENTE</th>
                     <th>DNI</th>
-                    <th>Tipo</th>
-                    <th>Acciones</th>
+                    <th>TIPO</th>
+                    <th>ACCIONES</th>
                 </tr>
             </thead>
-            <tbody id="tabla-turnos">
-                </tbody>
+            <tbody id="tabla-turnos"></tbody>
         </table>
-        <div id="mensaje" class="no-results" style="display: none;">No se encontraron turnos.</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -59,68 +66,35 @@
         async function cargarTurnos() {
             const fecha = document.getElementById('filtroFecha').value;
             const dni = document.getElementById('filtroDNI').value;
-            const tbody = document.getElementById('tabla-turnos');
-            const mensaje = document.getElementById('mensaje');
-
-            let query = _supabase.from('turnos').select('*').order('fecha', { ascending: true }).order('hora_inicio', { ascending: true });
-
+            let query = _supabase.from('turnos').select('*').order('fecha').order('hora_inicio');
+            
             if (fecha) query = query.eq('fecha', fecha);
             if (dni) query = query.ilike('dni', `%${dni}%`);
 
-            const { data: turnos, error } = await query;
+            const { data: turnos } = await query;
+            const tbody = document.getElementById('tabla-turnos');
+            tbody.innerHTML = turnos.map(t => `
+                <tr>
+                    <td>${t.fecha.split('-').reverse().join('/')}</td>
+                    <td>${t.hora_inicio.substring(0,5)} - ${t.hora_fin.substring(0,5)}</td>
+                    <td>${t.nombre}</td>
+                    <td>${t.dni}</td>
+                    <td>${t.tipo_turno}</td>
+                    <td>
+                        <button class="btn-edit" onclick="window.location.href='editar.html?id=${t.id}&nombre=${encodeURIComponent(t.nombre)}&dni=${t.dni}&tipo=${t.tipo_turno}&fecha=${t.fecha}&hora=${t.hora_inicio}'">Editar</button>
+                        <button class="btn-delete" onclick="eliminar('${t.id}')">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
-            if (error) {
-                console.error(error);
-                return;
-            }
-
-            tbody.innerHTML = '';
-            if (turnos.length === 0) {
-                mensaje.style.display = 'block';
-            } else {
-                mensaje.style.display = 'none';
-                turnos.forEach(t => {
-                    const fila = document.createElement('tr');
-                    fila.innerHTML = `
-                        <td>${formatearFecha(t.fecha)}</td>
-                        <td>${t.hora_inicio.substring(0, 5)} - ${t.hora_fin.substring(0, 5)}</td>
-                        <td>${t.nombre}</td>
-                        <td>${t.dni}</td>
-                        <td>${t.tipo_turno}</td>
-                        <td>
-                            <button class="btn-editar" onclick="reprogramar('${t.id}', '${encodeURIComponent(t.nombre)}', '${t.dni}', '${t.tipo_turno}', '${t.fecha}', '${t.hora_inicio}')">Editar</button>
-                            <button class="btn-eliminar" onclick="eliminarTurno('${t.id}')">Eliminar</button>
-                        </td>
-                    `;
-                    tbody.appendChild(fila);
-                });
+        async function eliminar(id) {
+            if(confirm('¿Eliminar turno?')) {
+                await _supabase.from('turnos').delete().eq('id', id);
+                cargarTurnos();
             }
         }
-
-        function reprogramar(id, nombre, dni, tipo, fecha, hora) {
-            // Redirige a editar.html pasando todos los datos actuales del turno
-            window.location.href = `editar.html?id=${id}&nombre=${nombre}&dni=${dni}&tipo=${tipo}&fecha=${fecha}&hora=${hora}`;
-        }
-
-        async function eliminarTurno(id) {
-            if (confirm('¿Estás segura de eliminar este turno?')) {
-                const { error } = await _supabase.from('turnos').delete().eq('id', id);
-                if (error) alert("Error al eliminar");
-                else cargarTurnos();
-            }
-        }
-
-        function formatearFecha(fechaStr) {
-            const [year, month, day] = fechaStr.split('-');
-            return `${day}/${month}/${year}`;
-        }
-
-        // Cargar por defecto los turnos de hoy al abrir
-        window.onload = () => {
-            // Opcional: poner fecha de hoy en el input
-            // document.getElementById('filtroFecha').value = new Date().toISOString().split('T')[0];
-            cargarTurnos();
-        };
+        window.onload = cargarTurnos;
     </script>
 </body>
 </html>
