@@ -1,11 +1,10 @@
-// CONFIGURACIÓN (Asegúrate de poner tus datos aquí)
+// Credenciales extraídas de tus capturas
 const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
+const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj'; // Asegúrate de copiarla completa desde Supabase
+
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const tabla = document.getElementById('tablaTurnos');
-
-// Sumar minutos a una hora HH:MM
+// Función para sumar minutos a una hora HH:MM
 function calcularFin(horaInicio, minutos) {
     let [hrs, mins] = horaInicio.split(':').map(Number);
     let date = new Date();
@@ -13,7 +12,7 @@ function calcularFin(horaInicio, minutos) {
     return date.toTimeString().substring(0, 5);
 }
 
-// Verifica si el nuevo horario choca con uno existente
+// Verifica solapamiento de horarios
 async function haySolapamiento(id, fecha, inicio, fin) {
     const { data, error } = await _supabase
         .from('turnos')
@@ -24,7 +23,6 @@ async function haySolapamiento(id, fecha, inicio, fin) {
     if (error) return false;
 
     return data.some(turno => {
-        // Choque: (InicioNuevo < FinExistente) && (FinNuevo > InicioExistente)
         return (inicio < turno.hora_fin && fin > turno.hora_inicio);
     });
 }
@@ -39,16 +37,24 @@ async function obtenerTurnos() {
     if (filtroDni) consulta = consulta.ilike('dni', `%${filtroDni}%`);
 
     const { data, error } = await consulta;
+    
     if (error) {
-        console.error("Error cargando datos:", error);
-    } else {
-        renderizarTabla(data);
+        console.error("Error de Supabase:", error.message);
+        return;
     }
+    renderizarTabla(data);
 }
 
 function renderizarTabla(turnos) {
+    const tabla = document.getElementById('tablaTurnos');
     if (!tabla) return;
     tabla.innerHTML = '';
+    
+    if (turnos.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No hay turnos agendados.</td></tr>';
+        return;
+    }
+
     turnos.forEach(turno => {
         const fila = document.createElement('tr');
         fila.innerHTML = `
@@ -76,11 +82,10 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
     const duracion = nuevoTipo === 'Primera vez' ? 40 : 20;
     const nuevaHoraFin = calcularFin(nuevaHora, duracion);
 
-    // VALIDACIÓN DE CHOQUE
     const solapa = await haySolapamiento(id, nuevaFecha, nuevaHora, nuevaHoraFin);
     
     if (solapa) {
-        alert("⚠️ ¡Error! El horario seleccionado se solapa con otro turno agendado.");
+        alert("⚠️ Error: El horario se solapa con otro turno existente.");
         return;
     }
 
@@ -104,12 +109,12 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
 }
 
 async function eliminarTurno(id) {
-    if (confirm("¿Eliminar este turno?")) {
+    if (confirm("¿Seguro que quieres eliminar este turno?")) {
         const { error } = await _supabase.from('turnos').delete().eq('id', id);
         if (error) alert(error.message);
         else obtenerTurnos();
     }
 }
 
-// Iniciar
-obtenerTurnos();
+// Carga automática al iniciar
+document.addEventListener('DOMContentLoaded', obtenerTurnos);
