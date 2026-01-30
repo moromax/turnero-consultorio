@@ -3,39 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turnero Consultorio</title>
+    <title>Reserva tu Turno</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Reserva tu Turno</h1>
-        <form id="turnoForm">
-            <label for="nombre">Nombre Completo:</label>
-            <input type="text" id="nombre" required>
 
-            <label for="dni">DNI (solo números, 7 u 8 cifras):</label>
-            <input type="text" id="dni" required maxlength="8">
-
-            <label for="tipo_turno">Tipo de Turno:</label>
-            <select id="tipo_turno" required>
-                <option value="">Seleccione...</option>
-                <option value="Primera vez">Primera vez (40 min)</option>
-                <option value="Control">Control (20 min)</option>
-            </select>
-
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" required>
-
-            <label for="hora">Hora (15:00 a 20:00):</label>
-            <select id="hora" required>
+    <div class="container-admin">
+        <h1 style="margin-bottom: 20px;">Reserva tu Turno</h1>
+        
+        <div class="filtros" style="display: block; text-align: left;">
+            <div style="margin-bottom: 15px;">
+                <label>Nombre Completo:</label>
+                <input type="text" id="nombre" style="width: 100%;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>DNI (solo números):</label>
+                <input type="text" id="dni" style="width: 100%;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>Tipo de Turno:</label>
+                <select id="tipo" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #dadce0; height: 48px;">
+                    <option>Seleccione...</option>
+                    <option>Primera vez</option>
+                    <option>Control</option>
                 </select>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>Fecha:</label>
+                <input type="date" id="fecha" style="width: 100%;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>Hora (15:00 a 20:00):</label>
+                <input type="time" id="hora" style="width: 100%;">
+            </div>
 
-            <button type="submit">Reservar Turno</button>
-        </form>
-        <p id="mensaje"></p>
+            <button onclick="reservarTurno()" class="btn-buscar" style="width: 100%; margin-top: 10px;">
+                Reservar Turno
+            </button>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _supabase = supabase.createClient('https://uekuyjoakqnhjltqrrpj.supabase.co', 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj');
+
+        function calcularFin(horaInicio, minutos) {
+            let [hrs, mins] = horaInicio.split(':').map(Number);
+            let date = new Date();
+            date.setHours(hrs, mins + minutos);
+            return date.toTimeString().substring(0, 5);
+        }
+
+        async function reservarTurno() {
+            const nombre = document.getElementById('nombre').value;
+            const dni = document.getElementById('dni').value;
+            const tipo = document.getElementById('tipo').value;
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+
+            if (!nombre || !dni || !fecha || !hora || tipo === "Seleccione...") {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+            const duracion = tipo === 'Primera vez' ? 40 : 20;
+            const horaFin = calcularFin(hora, duracion);
+
+            // VALIDAR SI EL HORARIO ESTÁ OCUPADO
+            const { data: choques } = await _supabase.from('turnos')
+                .select('id')
+                .eq('fecha', fecha)
+                .filter('hora_inicio', 'lt', horaFin)
+                .filter('hora_fin', 'gt', hora);
+
+            if (choques && choques.length > 0) {
+                alert("⚠️ Lo sentimos, este horario ya está ocupado o se solapa con otro turno. Elige otra hora.");
+                return;
+            }
+
+            const { error } = await _supabase.from('turnos').insert([{
+                nombre, dni, fecha, hora_inicio: hora, hora_fin: horaFin, tipo_turno: tipo
+            }]);
+
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("✅ ¡Turno reservado con éxito!");
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>
