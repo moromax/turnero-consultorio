@@ -1,1 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reprogramar Turno</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f1f3f4; margin: 0; font-family: sans-serif; }
+        .card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 450px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-weight: 600; margin-bottom: 10px; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; box-sizing: border-box; font-size: 15px; }
+        .grid-horarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; margin: 15px 0; }
+        .slot-hora { padding: 10px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid #dee2e6; font-weight: 500; }
+        .disponible { background-color: #e6f4ea; color: #1e8e3e; border-color: #1e8e3e; }
+        .ocupado { background-color: #fce8e6; color: #d93025; border-color: #d93025; cursor: not-allowed; }
+        .seleccionado { background-color: #1a73e8 !important; color: white !important; }
+        .btn-container { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
+        .btn-confirmar { background-color: #1a73e8; color: white; border: none; border-radius: 25px; padding: 12px 30px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-cancelar { background-color: #9aa0a6; color: white; border: none; border-radius: 25px; padding: 12px 30px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 style="font-size: 20px; text-align: center;">Reprogramar Turno</h1>
+        <div class="form-group">
+            <label>Paciente:</label>
+            <input type="text" id="nombre" style="margin-bottom:10px;">
+            <input type="text" id="dni">
+        </div>
+        <div class="form-group">
+            <label>Tipo:</label>
+            <select id="tipo" onchange="cargarDisponibilidad()">
+                <option value="Control">Control (20 min)</option>
+                <option value="Primera vez">Primera vez (40 min)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Nueva Fecha:</label>
+            <input type="date" id="fecha" onchange="cargarDisponibilidad()">
+        </div>
+        <label>Elegir Horario:</label>
+        <div id="gridHorarios" class="grid-horarios"></div>
+        <input type="hidden" id="horaSeleccionada">
+        <div class="btn-container">
+            <button onclick="window.location.href='admin.html'" class="btn-cancelar">Cancelar</button>
+            <button onclick="actualizar()" class="btn-confirmar">Guardar</button>
+        </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const _supabase = supabase.createClient('https://uekuyjoakqnhjltqrrpj.supabase.co', 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj');
+        const params = new URLSearchParams(window.location.search);
+        const turnoId = params.get('id');
+
+        window.onload = () => {
+            document.getElementById('nombre').value = params.get('nombre');
+            document.getElementById('dni').value = params.get('dni');
+            document.getElementById('tipo').value = params.get('tipo');
+            document.getElementById('fecha').value = params.get('fecha');
+            document.getElementById('horaSeleccionada').value = params.get('hora').substring(0,5);
+            cargarDisponibilidad();
+        };
+
+        async function cargarDisponibilidad() {
+            const fecha = document.getElementById('fecha').value;
+            const tipo = document.getElementById('tipo').value;
+            const hSel = document.getElementById('horaSeleccionada').value;
+            const grid = document.getElementById('gridHorarios');
+            const { data: ocupados } = await _supabase.from('turnos').select('id, hora_inicio, hora_fin').eq('fecha', fecha);
+            grid.innerHTML = '';
+            const dur = (tipo === 'Primera vez') ? 40 : 20;
+            for (let h = 15; h < 20; h++) {
+                for (let m = 0; m < 60; m += 20) {
+                    const hAct = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                    const [hh, mm] = hAct.split(':').map(Number);
+                    const hFinPot = `${new Date(0,0,0,hh,mm+dur).getHours().toString().padStart(2,'0')}:${new Date(0,0,0,hh,mm+dur).getMinutes().toString().padStart(2,'0')}`;
+                    const estaOcupado = ocupados?.some(t => t.id != turnoId && hAct < t.hora_fin.substring(0,5) && hFinPot > t.hora_inicio.substring(0,5));
+                    const div = document.createElement('div');
+                    div.className = `slot-hora ${estaOcupado ? 'ocupado' : 'disponible'}`;
+                    if (hAct === hSel) div.classList.add('seleccionado');
+                    div.innerText = hAct;
+                    if (!estaOcupado) {
+                        div.onclick = () => {
+                            document.querySelectorAll('.slot-hora').forEach(s => s.classList.remove('seleccionado'));
+                            div.classList.add('seleccionado');
+                            document.getElementById('horaSeleccionada').value = hAct;
+                        };
+                    }
+                    grid.appendChild(div);
+                }
+            }
+        }
+
+        async function actualizar() {
+            const hIni = document.getElementById('horaSeleccionada').value;
+            const tipo = document.getElementById('tipo').value;
+            const [h, m] = hIni.split(':').map(Number);
+            const dur = (tipo === 'Primera vez') ? 40 : 20;
+            const hFin = `${new Date(0,0,0,h,m+dur).getHours().toString().padStart(2,'0')}:${new Date(0,0,0,h,m+dur).getMinutes().toString().padStart(2,'0')}`;
+            const { error } = await _supabase.from('turnos').update({
+                nombre: document.getElementById('nombre').value,
+                dni: document.getElementById('dni').value,
+                tipo_turno: tipo,
+                fecha: document.getElementById('fecha').value,
+                hora_inicio: hIni,
+                hora_fin: hFin
+            }).eq('id', turnoId);
+            if (error) alert("Error");
+            else window.location.href = 'admin.html';
+        }
+    </script>
+</body>
+</html>
