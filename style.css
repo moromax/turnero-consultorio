@@ -1,11 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
 
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    outline: none !important; 
-}
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none !important; }
 
 body {
     font-family: 'Product Sans', sans-serif !important;
@@ -24,83 +19,58 @@ body {
     max-width: 1100px;
 }
 
-/* INPUTS MODERNOS */
+h1 { text-align: left; margin-bottom: 30px; font-weight: 700; color: #202124; font-size: 32px; }
+
+/* Inputs Modernos para Fecha y DNI */
 .filtros {
-    display: flex; 
-    gap: 15px; 
-    margin-bottom: 40px;
-    background: #f8f9fa; 
-    padding: 25px; 
-    border-radius: 20px;
+    display: flex; gap: 15px; margin-bottom: 40px;
+    background: #f8f9fa; padding: 25px; border-radius: 20px;
     align-items: center;
 }
 
 input[type="date"], input[type="text"], select {
-    padding: 10px 18px;
-    border: 1px solid #dadce0;
-    border-radius: 12px;
-    height: 48px;
-    font-family: inherit;
-    font-size: 15px;
-    transition: all 0.3s ease;
+    padding: 10px 18px; border: 1px solid #dadce0; border-radius: 12px;
+    height: 48px; font-family: inherit; font-size: 15px;
+    transition: all 0.3s ease; background: white;
 }
 
-/* BOTONES CON EFECTO DE INMENSIDAD (HOVER) */
+input:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
+
+/* Efecto de Inmensidad en Botones */
 button {
-    cursor: pointer;
-    border: none !important;
-    border-radius: 100px !important;
-    color: white;
-    font-weight: 500;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto suave de rebote */
+    cursor: pointer; border: none !important; border-radius: 100px !important;
+    color: white; font-weight: 500; font-family: inherit;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 button:hover {
-    transform: translateY(-3px); /* El botón sube */
-    box-shadow: 0 8px 15px rgba(0,0,0,0.2); /* Sombra más profunda */
-}
-
-button:active {
-    transform: translateY(-1px);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 20px rgba(26, 115, 232, 0.25);
 }
 
 .btn-buscar { background-color: #1a73e8 !important; height: 48px; padding: 0 25px !important; }
-.btn-edit { background-color: #1a73e8 !important; padding: 8px 22px !important; }
+.btn-edit { background-color: #1a73e8 !important; padding: 8px 22px !important; margin-right: 5px; }
 .btn-delete { background-color: #d93025 !important; padding: 8px 22px !important; }
 
-/* TABLA DIVIDIDA */
+/* Tabla con Separación y Línea Divisoria */
 table { width: 100%; border-collapse: collapse; }
 th { 
-    text-align: left; 
-    padding: 20px 15px; 
-    color: #5f6368; 
-    font-size: 13px; 
-    text-transform: uppercase; 
+    text-align: left; padding: 20px 15px; color: #5f6368; 
+    font-size: 13px; text-transform: uppercase; font-weight: 700;
     border-bottom: 2px solid #f1f3f4; 
 }
-td { padding: 20px 15px; border-bottom: 1px solid #f1f3f4; font-size: 15px; }
+td { padding: 20px 15px; border-bottom: 1px solid #f1f3f4; font-size: 15px; color: #3c4043; }
 
-/* SELECTOR DE HORARIOS (INDEX) */
+/* Selector de Horarios */
 .slot-hora {
-    padding: 12px;
-    background: white;
-    border: 1px solid #dadce0;
-    border-radius: 14px;
-    text-align: center;
-    cursor: pointer;
+    padding: 12px; background: white; border: 1px solid #dadce0;
+    border-radius: 14px; text-align: center; cursor: pointer;
     transition: all 0.3s ease;
 }
-
 .slot-hora:hover { 
-    border-color: #1a73e8; 
-    background: #f8f9fa;
-    transform: scale(1.05); /* Se agranda un poquito */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transform: translateY(-2px); border-color: #1a73e8; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
 }
-
 .slot-hora.active { background: #1a73e8 !important; color: white !important; }
