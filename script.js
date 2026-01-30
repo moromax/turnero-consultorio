@@ -58,10 +58,15 @@ async function cargarHorarios() {
             // Validar que el turno no termine después de las 20:00
             if (horaFinPotencial > "20:00") continue;
 
-            // Verificar si el rango (inicio a fin) choca con algún turno existente
+            // Verificar si el rango choca con algún turno existente
             const ocupado = turnosExistentes.some(t => {
-                // Hay solapamiento si:
-                return (horaInicio < t.hora_fin && horaFinPotencial > t.hora_inicio);
+                // IMPORTANTE: Cortamos a 5 caracteres (HH:mm) para ignorar los segundos de la DB
+                const tInicio = t.hora_inicio.substring(0, 5);
+                const tFin = t.hora_fin.substring(0, 5);
+                
+                // Solo choca si el nuevo rango se solapa internamente. 
+                // Si horaInicio == tFin, NO choca.
+                return (horaInicio < tFin && horaFinPotencial > tInicio);
             });
 
             if (!ocupado) {
@@ -99,7 +104,7 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    if (!hora_inicio) {
+    if (!hora_inicio || hora_inicio === "") {
         alert("Por favor, selecciona un horario válido.");
         return;
     }
@@ -123,7 +128,7 @@ form.addEventListener('submit', async (e) => {
         ]);
 
     if (error) {
-        if (error.code === '23505') { // Código de error para duplicados (UNIQUE en SQL)
+        if (error.code === '23505') { 
             alert("Ya existe un turno registrado para este DNI en la fecha seleccionada.");
         } else {
             alert("Error al reservar: " + error.message);
