@@ -1,8 +1,5 @@
-// Credenciales extraídas de tus capturas
 const SUPABASE_URL = 'https://uekuyjoakqnhjltqrrpj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj'; // Asegúrate de que esté completa
-
-// Inicialización segura
+const SUPABASE_KEY = 'sb_publishable_COB2p3O_OrgFdO3W6EvLvg_DuicBhwj';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 function calcularFin(horaInicio, minutos) {
@@ -12,6 +9,7 @@ function calcularFin(horaInicio, minutos) {
     return date.toTimeString().substring(0, 5);
 }
 
+// Verifica si el horario choca con otro existente (excluyendo el actual)
 async function haySolapamiento(id, fecha, inicio, fin) {
     const { data, error } = await _supabase
         .from('turnos')
@@ -36,13 +34,13 @@ async function obtenerTurnos() {
     const { data, error } = await consulta;
     
     if (error) {
-        console.error("Error:", error.message);
+        console.error("Error cargando turnos:", error.message);
         return;
     }
 
     tabla.innerHTML = '';
     if (data.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No hay turnos.</td></tr>';
+        tabla.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No hay turnos registrados.</td></tr>';
         return;
     }
 
@@ -74,7 +72,7 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
     const nuevaHoraFin = calcularFin(nuevaHora, duracion);
 
     if (await haySolapamiento(id, nuevaFecha, nuevaHora, nuevaHoraFin)) {
-        alert("⚠️ Error: El horario se solapa con otro turno.");
+        alert("⚠️ Error: El nuevo horario se solapa con otro turno agendado.");
         return;
     }
 
@@ -83,14 +81,18 @@ async function editarTurnoCompleto(id, nombreAct, dniAct, fechaAct, horaAct, tip
         tipo_turno: nuevoTipo, hora_inicio: nuevaHora, hora_fin: nuevaHoraFin
     }).eq('id', id);
 
-    if (error) alert(error.message);
-    else { alert("Actualizado"); obtenerTurnos(); }
+    if (error) alert("Error al actualizar: " + error.message);
+    else {
+        alert("✅ Turno actualizado.");
+        obtenerTurnos();
+    }
 }
 
 async function eliminarTurno(id) {
-    if (confirm("¿Eliminar?")) {
-        await _supabase.from('turnos').delete().eq('id', id);
-        obtenerTurnos();
+    if (confirm("¿Estás seguro de eliminar este turno?")) {
+        const { error } = await _supabase.from('turnos').delete().eq('id', id);
+        if (error) alert(error.message);
+        else obtenerTurnos();
     }
 }
 
